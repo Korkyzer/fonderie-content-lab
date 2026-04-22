@@ -15,9 +15,11 @@ import {
   UpcomingPublications,
   type UpcomingPublication,
 } from "@/components/screens/dashboard/upcoming-publications";
+import { CompetitiveScoreboard } from "@/components/screens/dashboard/competitive-scoreboard";
 import {
   getCalendarEvents,
   getDashboardStats,
+  getScoreboard,
   getUpcomingPublications,
 } from "@/lib/queries";
 
@@ -154,6 +156,7 @@ export default async function DashboardPage() {
   const stats = await getDashboardStats();
   const upcoming = getUpcomingPublications(5);
   const events = getCalendarEvents();
+  const scoreboard = getScoreboard();
 
   const calendarEventsMap = buildCalendarEvents(events, 4, 2026);
 
@@ -289,6 +292,12 @@ export default async function DashboardPage() {
           </Card>
         </div>
       </div>
+
+      <CompetitiveScoreboard
+        rows={scoreboard.rows}
+        trend={scoreboard.trend}
+        latestWeek={scoreboard.latestWeek}
+      />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
         <Card>

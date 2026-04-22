@@ -61,6 +61,37 @@ export const competitors = sqliteTable("competitors", {
   opportunity: text("opportunity").notNull(),
 });
 
+export const competitorInsights = sqliteTable("competitor_insights", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  handle: text("handle").notNull(),
+  summary: text("summary").notNull(),
+  highlights: text("highlights").notNull(),
+  opportunity: text("opportunity").notNull(),
+  source: text("source").notNull(),
+  generatedAt: text("generated_at").notNull(),
+});
+
+export const competitorMetrics = sqliteTable("competitor_metrics", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  handle: text("handle").notNull(),
+  platform: text("platform").notNull(),
+  weekStart: text("week_start").notNull(),
+  posts: integer("posts").notNull(),
+  engagementRate: real("engagement_rate").notNull(),
+  reach: integer("reach").notNull(),
+});
+
+export const competitiveAlerts = sqliteTable("competitive_alerts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  handle: text("handle").notNull(),
+  severity: text("severity").notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  source: text("source").notNull(),
+  dismissed: integer("dismissed", { mode: "boolean" }).notNull().default(false),
+  createdAt: text("created_at").notNull(),
+});
+
 export const prompts = sqliteTable("prompts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   slug: text("slug").notNull(),

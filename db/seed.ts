@@ -2,6 +2,9 @@ import { db, sqlite } from "@/db/index";
 import {
   brandRules,
   calendarEvents,
+  competitiveAlerts,
+  competitorInsights,
+  competitorMetrics,
   competitors,
   contentItems,
   kanbanCards,
@@ -19,6 +22,9 @@ async function main() {
   db.delete(kanbanCards).run();
   db.delete(calendarEvents).run();
   db.delete(competitors).run();
+  db.delete(competitorInsights).run();
+  db.delete(competitorMetrics).run();
+  db.delete(competitiveAlerts).run();
   db.delete(prompts).run();
   db.delete(personas).run();
 
@@ -418,6 +424,128 @@ async function main() {
     },
   ]).run();
   const now = new Date().toISOString();
+
+  const METRICS_HANDLES: Array<{
+    handle: string;
+    instagram: [number, number, number];
+    linkedin: [number, number, number];
+    tiktok: [number, number, number];
+  }> = [
+    { handle: "@cfi_paris", instagram: [14, 5.1, 48000], linkedin: [6, 4.2, 18000], tiktok: [3, 7.4, 12000] },
+    { handle: "@gobelins_paris", instagram: [42, 8.2, 210000], linkedin: [12, 6.1, 82000], tiktok: [18, 11.2, 180000] },
+    { handle: "@lisaa_paris", instagram: [28, 6.4, 140000], linkedin: [8, 4.8, 48000], tiktok: [26, 9.5, 220000] },
+    { handle: "@ecv_france", instagram: [22, 5.6, 98000], linkedin: [16, 7.1, 110000], tiktok: [10, 6.2, 68000] },
+    { handle: "@cifacom", instagram: [30, 4.9, 76000], linkedin: [5, 3.8, 24000], tiktok: [12, 5.1, 42000] },
+  ];
+
+  const WEEK_STARTS = ["2026-03-23", "2026-03-30", "2026-04-06", "2026-04-13"];
+  const metricRows: Array<{
+    handle: string;
+    platform: string;
+    weekStart: string;
+    posts: number;
+    engagementRate: number;
+    reach: number;
+  }> = [];
+  WEEK_STARTS.forEach((weekStart, weekIdx) => {
+    METRICS_HANDLES.forEach((entry) => {
+      const mul = 0.78 + weekIdx * 0.08;
+      (["Instagram", "LinkedIn", "TikTok"] as const).forEach((platform) => {
+        const key =
+          platform === "Instagram" ? entry.instagram : platform === "LinkedIn" ? entry.linkedin : entry.tiktok;
+        metricRows.push({
+          handle: entry.handle,
+          platform,
+          weekStart,
+          posts: Math.round(key[0] * mul),
+          engagementRate: Math.round(key[1] * mul * 10) / 10,
+          reach: Math.round(key[2] * mul),
+        });
+      });
+    });
+  });
+  db.insert(competitorMetrics).values(metricRows).run();
+
+  db.insert(competitorInsights).values([
+    {
+      handle: "@gobelins_paris",
+      summary: "Poussée forte sur les Reels BTS atelier, ton documentaire, tutoiement assumé.",
+      highlights: JSON.stringify([
+        "9 Reels behind-the-scenes en 14 jours",
+        "Engagement moyen 8,2% sur Instagram",
+        "Tutoiement + musique lente sur 80% des Reels",
+      ]),
+      opportunity: "Répondre avec un format process étudiant plus brut et plus incarné.",
+      source: "seed",
+      generatedAt: now,
+    },
+    {
+      handle: "@lisaa_paris",
+      summary: "Accélération TikTok, formats courts 15-30s, focus admissions et vie de campus.",
+      highlights: JSON.stringify([
+        "26 publications TikTok cette semaine",
+        "Carrousels admissions +190%",
+        "Stories workshop typographie saturées",
+      ]),
+      opportunity: "Renforcer les témoignages vidéo autour de la JPO.",
+      source: "seed",
+      generatedAt: now,
+    },
+    {
+      handle: "@ecv_france",
+      summary: "Focus LinkedIn employabilité, ton corporate, portraits alumni.",
+      highlights: JSON.stringify([
+        "16 posts LinkedIn cette semaine",
+        "Engagement LinkedIn 7,1% (+0,6 pt)",
+        "Réductions des formats courts sur Instagram",
+      ]),
+      opportunity: "Accélérer les contenus entreprises partenaires.",
+      source: "seed",
+      generatedAt: now,
+    },
+    {
+      handle: "@cifacom",
+      summary: "Cadence stories soutenue sur Parcoursup, formats événementiels.",
+      highlights: JSON.stringify([
+        "30 stories Parcoursup",
+        "Carrousel « 5 erreurs » à 7,2%",
+        "Pic d'activité en soirée",
+      ]),
+      opportunity: "Monter une série stories Parcoursup plus claire et plus pédagogique.",
+      source: "seed",
+      generatedAt: now,
+    },
+  ]).run();
+
+  db.insert(competitiveAlerts).values([
+    {
+      handle: "@gobelins_paris",
+      severity: "high",
+      title: "Gobelins pousse 3x plus de Reels BTS",
+      description: "9 Reels atelier publiés en 14 jours, engagement moyen 8,2%. Format court, tutoiement, musique lente.",
+      source: "seed",
+      dismissed: false,
+      createdAt: now,
+    },
+    {
+      handle: "@lisaa_paris",
+      severity: "medium",
+      title: "LISAA accélère sur TikTok",
+      description: "26 publications TikTok cette semaine contre 11 la semaine précédente. Focus admissions.",
+      source: "seed",
+      dismissed: false,
+      createdAt: now,
+    },
+    {
+      handle: "@ecv_france",
+      severity: "low",
+      title: "ECV consolide son positionnement LinkedIn",
+      description: "Engagement LinkedIn 7,1% (+0,6 pt). Séries portraits alumni et partenaires.",
+      source: "seed",
+      dismissed: false,
+      createdAt: now,
+    },
+  ]).run();
 
   db.insert(prompts).values([
     {

@@ -9,9 +9,10 @@ import { cx } from "@/lib/utils";
 
 type SidebarProps = {
   onNavigate?: () => void;
+  alertsCount?: number;
 };
 
-export function Sidebar({ onNavigate }: SidebarProps) {
+export function Sidebar({ onNavigate, alertsCount = 0 }: SidebarProps) {
   const pathname = usePathname();
   const sections: Array<NavItem["section"]> = ["Workspace", "Intelligence"];
 
@@ -19,6 +20,12 @@ export function Sidebar({ onNavigate }: SidebarProps) {
     href === "/"
       ? pathname === "/"
       : pathname === href || pathname.startsWith(`${href}/`);
+
+  const decoratedNavigation = navigation.map((item) =>
+    item.href === "/competitive" && alertsCount > 0
+      ? { ...item, badge: String(alertsCount) }
+      : item,
+  );
 
   return (
     <aside className="flex h-full flex-col overflow-hidden bg-ink text-cream">
@@ -43,7 +50,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
               {section}
             </p>
             <nav className="flex flex-col">
-              {navigation
+              {decoratedNavigation
                 .filter((item) => item.section === section)
                 .map((item) => {
                   const active = isActive(item.href);

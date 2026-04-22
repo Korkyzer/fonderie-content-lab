@@ -10,15 +10,16 @@ import { cx } from "@/lib/utils";
 type AppShellProps = {
   children: ReactNode;
   headerActions?: ReactNode;
+  alertsCount?: number;
 };
 
-export function AppShell({ children, headerActions }: AppShellProps) {
+export function AppShell({ children, headerActions, alertsCount = 0 }: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <div className="min-h-screen md:grid md:grid-cols-shell">
       <div className="hidden md:block">
-        <Sidebar />
+        <Sidebar alertsCount={alertsCount} />
       </div>
 
       <div
@@ -36,7 +37,7 @@ export function AppShell({ children, headerActions }: AppShellProps) {
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <Sidebar onNavigate={() => setMobileOpen(false)} />
+        <Sidebar onNavigate={() => setMobileOpen(false)} alertsCount={alertsCount} />
       </div>
 
       <main className="flex min-w-0 flex-col">

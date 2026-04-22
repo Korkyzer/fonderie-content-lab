@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,8 +31,30 @@ type CompetitorRecord = {
   opportunity: string;
 };
 
+export type CompetitorInsight = {
+  id: number;
+  handle: string;
+  summary: string;
+  highlights: string[];
+  opportunity: string;
+  source: string;
+  generatedAt: string;
+};
+
+export type CompetitiveAlert = {
+  id: number;
+  handle: string;
+  severity: string;
+  title: string;
+  description: string;
+  source: string;
+  createdAt: string;
+};
+
 type CompetitiveViewProps = {
   competitors: CompetitorRecord[];
+  insights: CompetitorInsight[];
+  alerts: CompetitiveAlert[];
 };
 
 const PLATFORM_TONE: Record<string, "purple" | "orange" | "sky" | "pink"> = {
@@ -55,8 +78,31 @@ function matchesFilter(filter: FeedFilter, post: CompetitivePost) {
   return true;
 }
 
-export function CompetitiveView({ competitors }: CompetitiveViewProps) {
+function formatRelative(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.valueOf())) return iso;
+  const diffMs = Date.now() - date.valueOf();
+  const diffMin = Math.round(diffMs / 60000);
+  if (diffMin < 1) return "à l'instant";
+  if (diffMin < 60) return `il y a ${diffMin} min`;
+  const diffH = Math.round(diffMin / 60);
+  if (diffH < 24) return `il y a ${diffH}h`;
+  const diffD = Math.round(diffH / 24);
+  return `il y a ${diffD}j`;
+}
+
+const SEVERITY_TONE: Record<string, "red" | "orange" | "sky"> = {
+  high: "red",
+  medium: "orange",
+  low: "sky",
+};
+
+export function CompetitiveView({ competitors, insights, alerts }: CompetitiveViewProps) {
   const [filter, setFilter] = useState<FeedFilter>("Tous");
+  const [refreshError, setRefreshError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const router = useRouter();
 
   const visibleCompetitors = competitors.slice(0, 4);
   const competitorsByHandle = useMemo(
@@ -68,10 +114,53 @@ export function CompetitiveView({ competitors }: CompetitiveViewProps) {
     0,
   );
 
+  const insightsByHandle = useMemo(
+    () => new Map(insights.map((insight) => [insight.handle, insight])),
+    [insights],
+  );
+
+  const latestUpdatedAt = useMemo(() => {
+    if (insights.length === 0) return null;
+    return insights.reduce((latest, item) => {
+      return new Date(item.generatedAt) > new Date(latest) ? item.generatedAt : latest;
+    }, insights[0].generatedAt);
+  }, [insights]);
+
   const filteredPosts = useMemo(
     () => POSTS.filter((post) => matchesFilter(filter, post)),
     [filter],
   );
+
+  async function handleRefresh() {
+    setRefreshError(null);
+    setIsRefreshing(true);
+    try {
+      const res = await fetch("/api/competitive/refresh", { method: "POST" });
+      const json = (await res.json().catch(() => ({}))) as {
+        warning?: string;
+        error?: string;
+      };
+      if (!res.ok) {
+        setRefreshError(json.error ?? `Erreur ${res.status}`);
+        return;
+      }
+      if (json.warning) setRefreshError(json.warning);
+      startTransition(() => router.refresh());
+    } catch (err) {
+      setRefreshError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsRefreshing(false);
+    }
+  }
+
+  async function dismissAlert(id: number) {
+    await fetch("/api/competitive/alerts", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ id, action: "dismiss" }),
+    });
+    startTransition(() => router.refresh());
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -86,17 +175,80 @@ export function CompetitiveView({ competitors }: CompetitiveViewProps) {
           </h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {latestUpdatedAt ? (
+            <span className="text-[10px] font-bold uppercase tracking-[0.08em] text-ink/55">
+              MAJ {formatRelative(latestUpdatedAt)}
+            </span>
+          ) : null}
           <Button variant="light" size="sm" icon={<Icon name="filter" size={14} />}>
             7 jours
           </Button>
           <Button variant="light" size="sm" icon={<Icon name="plus" size={14} />}>
             Ajouter concurrent
           </Button>
-          <Button variant="primary" icon={<Icon name="sparkle" size={14} />}>
-            Synthèse IA
+          <Button
+            variant="primary"
+            icon={<Icon name="sparkle" size={14} />}
+            onClick={handleRefresh}
+            disabled={isRefreshing || isPending}
+          >
+            {isRefreshing || isPending ? "Analyse…" : "Actualiser l'analyse"}
           </Button>
         </div>
       </header>
+
+      {refreshError ? (
+        <div className="rounded-md border border-orange bg-orange/10 px-4 py-2 text-[12px] text-ink">
+          {refreshError}
+        </div>
+      ) : null}
+
+      {alerts.length > 0 ? (
+        <Card>
+          <CardHeader
+            title="Alertes concurrentielles"
+            more={<Badge tone="red">{alerts.length} active{alerts.length > 1 ? "s" : ""}</Badge>}
+          />
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            {alerts.map((alert) => {
+              const tone = SEVERITY_TONE[alert.severity] ?? "sky";
+              const visual = getCompetitorVisual(alert.handle);
+              return (
+                <div
+                  key={alert.id}
+                  className="flex flex-col gap-2 rounded-md border border-ink/10 bg-white p-3"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={cx(
+                          "grid h-7 w-7 place-items-center rounded-sm border border-ink text-[10px] font-bold uppercase",
+                          visual.color,
+                        )}
+                      >
+                        {visual.short}
+                      </div>
+                      <Badge tone={tone}>{alert.severity}</Badge>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.08em] text-ink/55">
+                        {formatRelative(alert.createdAt)}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => dismissAlert(alert.id)}
+                      className="text-[10px] font-bold uppercase tracking-[0.08em] text-ink/55 hover:text-ink"
+                    >
+                      Masquer
+                    </button>
+                  </div>
+                  <p className="text-[13px] font-bold leading-tight">{alert.title}</p>
+                  <p className="text-[12px] leading-snug text-ink/70">{alert.description}</p>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {visibleCompetitors.map((competitor) => {
@@ -112,6 +264,7 @@ export function CompetitiveView({ competitors }: CompetitiveViewProps) {
             bars,
             Math.round(competitor.monthlyPosts / 12),
           );
+          const insight = insightsByHandle.get(competitor.handle);
 
           return (
             <Card key={competitor.id} className="p-4">
@@ -153,7 +306,10 @@ export function CompetitiveView({ competitors }: CompetitiveViewProps) {
                 ))}
               </div>
               <p className="mt-3 text-[11px] leading-tight text-ink/70">
-                {competitor.positioning}
+                {insight?.summary ?? competitor.positioning}
+              </p>
+              <p className="mt-2 text-[9px] font-bold uppercase tracking-[0.08em] text-ink/50">
+                {insight ? `MAJ ${formatRelative(insight.generatedAt)} · ${insight.source}` : "Snapshot initial"}
               </p>
             </Card>
           );
