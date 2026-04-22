@@ -12,6 +12,39 @@ type HeaderProps = {
   actions?: ReactNode;
 };
 
+function RouteActions({ pathname }: { pathname: string }) {
+  if (pathname === "/") {
+    return (
+      <>
+        <Button variant="light" icon={<Icon name="filter" size={14} />}>
+          Filtres
+        </Button>
+        <Button variant="primary" icon={<Icon name="plus" size={14} />}>
+          Nouveau contenu
+        </Button>
+      </>
+    );
+  }
+
+  if (pathname === "/kanban") {
+    return (
+      <>
+        <Button variant="light" icon={<Icon name="filter" size={14} />}>
+          Filtres
+        </Button>
+        <Button variant="light" icon={<Icon name="users" size={14} />}>
+          Équipe (4)
+        </Button>
+        <Button variant="primary" icon={<Icon name="plus" size={14} />}>
+          Nouveau brief
+        </Button>
+      </>
+    );
+  }
+
+  return null;
+}
+
 export function Header({ actions }: HeaderProps) {
   const pathname = usePathname();
   const meta = pageMeta[pathname] ?? pageMeta["/"];
@@ -33,6 +66,7 @@ export function Header({ actions }: HeaderProps) {
         <Button variant="light" size="md" icon={<Icon name="bell" size={14} />}>
           3
         </Button>
+        <RouteActions pathname={pathname} />
         {actions}
       </div>
     </header>

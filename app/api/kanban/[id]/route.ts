@@ -8,6 +8,15 @@ export const dynamic = "force-dynamic";
 
 type Params = { params: Promise<{ id: string }> };
 
+const VALID_COLUMN_IDS = new Set([
+  "ideas",
+  "brief",
+  "production",
+  "review",
+  "validated",
+  "published",
+]);
+
 export async function PATCH(request: Request, { params }: Params) {
   const { id } = await params;
   const cardId = Number(id);
@@ -28,7 +37,12 @@ export async function PATCH(request: Request, { params }: Params) {
   }>;
 
   const updates: Record<string, unknown> = {};
-  if (body.columnId) updates.columnId = body.columnId;
+  if (body.columnId) {
+    if (!VALID_COLUMN_IDS.has(body.columnId)) {
+      return NextResponse.json({ error: "Colonne invalide." }, { status: 400 });
+    }
+    updates.columnId = body.columnId;
+  }
   if (body.title) updates.title = body.title;
   if (body.platform) updates.platform = body.platform;
   if (body.persona) updates.persona = body.persona;

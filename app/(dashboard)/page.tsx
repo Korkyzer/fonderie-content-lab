@@ -4,7 +4,6 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { Pill } from "@/components/ui/pill";
-import { SectionHeading } from "@/components/ui/section-heading";
 import type { PlaceholderTone } from "@/components/ui/placeholder";
 import {
   ActivityFeed,
@@ -195,32 +194,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <SectionHeading
-          eyebrow="Dashboard"
-          title="Bonjour Laure — Il reste 9 jours avant la JPO"
-          description="Vue d’ensemble éditoriale avec KPIs, activité récente et tendances écoles créatives."
-        />
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="light" icon={<Icon name="filter" size={14} />}>
-            Filtres
-          </Button>
-          <Button variant="primary" icon={<Icon name="plus" size={14} />}>
-            Nouveau contenu
-          </Button>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <Pill active>7 jours</Pill>
-        <Pill>30 jours</Pill>
-        <Pill>Trimestre</Pill>
-        <span className="mx-2 h-4 w-px bg-ink/15" />
-        <Button variant="light" size="sm" icon={<Icon name="sparkle" size={12} />}>
-          Générer IA
-        </Button>
-      </div>
-
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map((kpi) => (
           <KpiCard
@@ -320,7 +293,7 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
         <Card>
           <CardHeader
-            title="Performance — 30 derniers jours"
+            title="Performance · 30 derniers jours"
             more={
               <div className="flex items-center gap-1.5">
                 <Pill active>Reach</Pill>
