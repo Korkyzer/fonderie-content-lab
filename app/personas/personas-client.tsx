@@ -148,6 +148,7 @@ function PersonaCard({ persona, active, onSelect }: PersonaCardProps) {
       role="button"
       tabIndex={0}
       aria-pressed={active}
+      aria-label={`Sélectionner la persona ${persona.name}`}
       onClick={onSelect}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -156,7 +157,7 @@ function PersonaCard({ persona, active, onSelect }: PersonaCardProps) {
         }
       }}
       className={cx(
-        "flex cursor-pointer flex-col gap-3 rounded-md border-2 bg-cream p-4 transition-all",
+        "flex cursor-pointer flex-col gap-3 rounded-md border-2 bg-cream p-4 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink",
         active
           ? "border-ink shadow-[4px_4px_0_var(--ink)]"
           : "border-transparent hover:-translate-y-[2px] hover:border-ink/20 hover:shadow-card",

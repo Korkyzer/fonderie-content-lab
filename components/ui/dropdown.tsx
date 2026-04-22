@@ -46,6 +46,7 @@ export function Dropdown({
         onClick={() => setOpen((prev) => !prev)}
         className="cursor-pointer"
         aria-expanded={open}
+        aria-haspopup="menu"
       >
         {trigger}
       </button>
