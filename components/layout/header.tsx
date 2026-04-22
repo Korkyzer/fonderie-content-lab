@@ -1,28 +1,39 @@
-export function Header() {
+"use client";
+
+import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { SearchBar } from "@/components/ui/search-bar";
+import { pageMeta } from "@/lib/mock-data";
+
+type HeaderProps = {
+  actions?: ReactNode;
+};
+
+export function Header({ actions }: HeaderProps) {
+  const pathname = usePathname();
+  const meta = pageMeta[pathname] ?? pageMeta["/"];
+
   return (
-    <header className="flex flex-col gap-4 border-b border-ink/8 bg-page/90 px-5 py-4 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-3">
-        <div className="rounded-sm border border-ink bg-cream px-3 py-2 shadow-hard">
-          <span className="text-[11px] font-bold uppercase tracking-[0.12em]">
-            ⌘K
-          </span>
+    <header className="sticky top-0 z-20 grid grid-cols-1 gap-4 border-b border-ink/8 bg-page/95 px-6 py-4 backdrop-blur md:grid-cols-[1fr_auto] md:items-center md:gap-6">
+      <div>
+        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.1em]">
+          <span className="text-ink/50">Fonderie Content Lab</span>
+          <Icon name="chevron" size={10} />
+          <b className="font-bold">{meta.crumb}</b>
         </div>
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-ink/55">
-            Recherche globale
-          </p>
-          <p className="text-sm text-ink/70">
-            Rechercher contenu, brief, persona…
-          </p>
-        </div>
+        <h1 className="mt-0.5 text-h1 font-display uppercase tracking-[0.01em]">
+          {meta.crumb}
+        </h1>
       </div>
-      <div className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.12em]">
-        <span className="rounded-full border border-ink/15 bg-cream px-3 py-2">
-          Notifications 3
-        </span>
-        <span className="rounded-full border border-ink/15 bg-purple-soft px-3 py-2">
-          JPO dans 9 jours
-        </span>
+      <div className="flex flex-wrap items-center justify-end gap-2.5">
+        <SearchBar />
+        <Button variant="light" size="md" icon={<Icon name="bell" size={14} />}>
+          3
+        </Button>
+        {actions}
       </div>
     </header>
   );

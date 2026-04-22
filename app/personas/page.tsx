@@ -1,9 +1,9 @@
-import { AppShell } from "@/components/layout/app-shell";
+
 import { ScreenFrame } from "@/components/screens/screen-frame";
 
 export default function PersonasPage() {
   return (
-    <AppShell>
+
       <ScreenFrame
         eyebrow="Audience Personas"
         title="4 personas et 5 314 ciblables"
@@ -15,6 +15,6 @@ export default function PersonasPage() {
           { label: "Alumni", tone: "caramel" },
         ]}
       />
-    </AppShell>
+
   );
 }

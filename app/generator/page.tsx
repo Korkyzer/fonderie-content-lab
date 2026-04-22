@@ -1,9 +1,9 @@
-import { AppShell } from "@/components/layout/app-shell";
+
 import { ScreenFrame } from "@/components/screens/screen-frame";
 
 export default function GeneratorPage() {
   return (
-    <AppShell>
+
       <ScreenFrame
         eyebrow="Générateur IA"
         title="Créer un contenu"
@@ -14,6 +14,6 @@ export default function GeneratorPage() {
           { label: "Motion Design", tone: "purple" },
         ]}
       />
-    </AppShell>
+
   );
 }

@@ -1,9 +1,9 @@
-import { AppShell } from "@/components/layout/app-shell";
+
 import { ScreenFrame } from "@/components/screens/screen-frame";
 
 export default function BrandGuardianPage() {
   return (
-    <AppShell>
+
       <ScreenFrame
         eyebrow="Brand Guardian"
         title="Analyse du carrousel Motion Design"
@@ -14,6 +14,6 @@ export default function BrandGuardianPage() {
           { label: "Correction +6 pts", tone: "green" },
         ]}
       />
-    </AppShell>
+
   );
 }

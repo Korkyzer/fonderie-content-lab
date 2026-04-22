@@ -1,9 +1,9 @@
-import { AppShell } from "@/components/layout/app-shell";
+
 import { ScreenFrame } from "@/components/screens/screen-frame";
 
 export default function CalendarPage() {
   return (
-    <AppShell>
+
       <ScreenFrame
         eyebrow="Calendrier éditorial"
         title="Mai 2026 et 38 publications planifiées"
@@ -14,6 +14,6 @@ export default function CalendarPage() {
           { label: "Puces Typo", tone: "pink" },
         ]}
       />
-    </AppShell>
+
   );
 }

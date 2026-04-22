@@ -1,9 +1,9 @@
-import { AppShell } from "@/components/layout/app-shell";
+
 import { ScreenFrame } from "@/components/screens/screen-frame";
 
 export default function CompetitivePage() {
   return (
-    <AppShell>
+
       <ScreenFrame
         eyebrow="Veille concurrentielle"
         title="4 écoles concurrentes et 371 publications sur 30 jours"
@@ -15,6 +15,6 @@ export default function CompetitivePage() {
           { label: "Cifacom", tone: "pink" },
         ]}
       />
-    </AppShell>
+
   );
 }

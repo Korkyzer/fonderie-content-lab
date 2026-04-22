@@ -1,9 +1,9 @@
-import { AppShell } from "@/components/layout/app-shell";
+
 import { ScreenFrame } from "@/components/screens/screen-frame";
 
 export default function PromptsPage() {
   return (
-    <AppShell>
+
       <ScreenFrame
         eyebrow="Bibliothèque de prompts"
         title="32 templates et 8 catégories"
@@ -14,6 +14,6 @@ export default function PromptsPage() {
           { label: "Newsletter alumni", tone: "caramel" },
         ]}
       />
-    </AppShell>
+
   );
 }

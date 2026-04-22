@@ -1,9 +1,9 @@
-import { AppShell } from "@/components/layout/app-shell";
+
 import { ScreenFrame } from "@/components/screens/screen-frame";
 
 export default function KanbanPage() {
   return (
-    <AppShell>
+
       <ScreenFrame
         eyebrow="Production"
         title="Kanban contenus en cours"
@@ -14,6 +14,6 @@ export default function KanbanPage() {
           { label: "IA uniquement", tone: "sky" },
         ]}
       />
-    </AppShell>
+
   );
 }
