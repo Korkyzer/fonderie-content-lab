@@ -10,6 +10,7 @@ import {
 
 import { Avatar } from "@/components/ui/avatar";
 import { Badge, type BadgeTone } from "@/components/ui/badge";
+import { ExportDropdown } from "@/components/export/export-dropdown";
 
 type AvatarTone =
   | "purple"
@@ -246,6 +247,17 @@ export function KanbanBoard({ initialCards }: KanbanBoardProps) {
         <Pill active={mineOnly} onClick={() => setMineOnly((v) => !v)}>
           Mes cartes
         </Pill>
+        <ExportDropdown
+          className="ml-auto"
+          options={[
+            {
+              id: "kanban-csv",
+              label: "Exporter le board en CSV",
+              endpoint: "/api/export/csv",
+              body: { scope: "kanban" },
+            },
+          ]}
+        />
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd}>

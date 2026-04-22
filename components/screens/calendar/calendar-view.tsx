@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Pill } from "@/components/ui/pill";
+import { ExportDropdown } from "@/components/export/export-dropdown";
 import { cx } from "@/lib/utils";
 
 import {
@@ -180,6 +181,16 @@ export function CalendarView({
           <Button variant="primary" icon={<Icon name="plus" size={14} />}>
             Programmer
           </Button>
+          <ExportDropdown
+            options={[
+              {
+                id: "calendar-csv",
+                label: "Exporter le calendrier en CSV",
+                endpoint: "/api/export/csv",
+                body: { scope: "calendar" },
+              },
+            ]}
+          />
         </div>
       </header>
 
