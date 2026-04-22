@@ -1,19 +1,29 @@
+import { asc, count } from "drizzle-orm";
 
-import { ScreenFrame } from "@/components/screens/screen-frame";
+import { CalendarView } from "@/components/screens/calendar/calendar-view";
+import { db } from "@/db/index";
+import { calendarEvents, contentItems } from "@/db/schema";
+
+export const dynamic = "force-dynamic";
 
 export default function CalendarPage() {
+  const events = db
+    .select()
+    .from(calendarEvents)
+    .orderBy(asc(calendarEvents.startDate))
+    .all();
+
+  const [contentCount] = db
+    .select({ value: count() })
+    .from(contentItems)
+    .all();
+
+  const scheduledCount = Math.max(38, contentCount?.value ?? 0);
+
   return (
-
-      <ScreenFrame
-        eyebrow="Calendrier éditorial"
-        title="Mai 2026 et 38 publications planifiées"
-        description="Planification mensuelle, événements de campagne et équilibre éditorial pour l’école."
-        highlights={[
-          { label: "JPO 17 mai", tone: "purple" },
-          { label: "Festival Annecy", tone: "sky" },
-          { label: "Puces Typo", tone: "pink" },
-        ]}
-      />
-
+    <CalendarView
+      campaignEvents={events}
+      scheduledCount={scheduledCount}
+    />
   );
 }
