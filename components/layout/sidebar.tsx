@@ -90,7 +90,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       <div className="flex flex-col gap-3 border-t border-cream/12 px-5 py-4">
         <div>
           <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.1em] text-cream/55">
-            <span>Crédits IA</span>
+            <span>Crédits studio</span>
             <span>62/100</span>
           </div>
           <div className="mt-1.5 h-1 overflow-hidden rounded-sm bg-cream/10">

@@ -1,19 +1,22 @@
+import { KanbanBoard } from "@/components/screens/kanban/kanban-board";
+import type { KanbanCardRow } from "@/components/screens/kanban/types";
+import { getKanbanCards } from "@/lib/queries";
 
-import { ScreenFrame } from "@/components/screens/screen-frame";
+export const dynamic = "force-dynamic";
 
 export default function KanbanPage() {
-  return (
+  const cards = getKanbanCards().map<KanbanCardRow>((card) => ({
+    id: card.id,
+    columnId: card.columnId,
+    title: card.title,
+    platform: card.platform,
+    persona: card.persona,
+    campaign: card.campaign,
+    assignee: card.assignee,
+    dueDate: card.dueDate,
+    aiProgress: card.aiProgress ?? null,
+    brandScore: card.brandScore ?? null,
+  }));
 
-      <ScreenFrame
-        eyebrow="Production"
-        title="Kanban contenus en cours"
-        description="Pipeline multi-colonnes pour idées, briefs, production, review, validation et publication."
-        highlights={[
-          { label: "JPO mai 2026", tone: "purple" },
-          { label: "Parcoursup", tone: "yellow" },
-          { label: "IA uniquement", tone: "sky" },
-        ]}
-      />
-
-  );
+  return <KanbanBoard initialCards={cards} />;
 }
