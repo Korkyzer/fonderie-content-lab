@@ -1,8 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import type { Session } from "next-auth";
 import type { ReactNode } from "react";
 
+import { UserMenu } from "@/components/auth/user-menu";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { SearchBar } from "@/components/ui/search-bar";
@@ -10,6 +12,7 @@ import { pageMeta } from "@/lib/mock-data";
 
 type HeaderProps = {
   actions?: ReactNode;
+  user: Session["user"] | null;
 };
 
 function RouteActions({ pathname }: { pathname: string }) {
@@ -45,7 +48,7 @@ function RouteActions({ pathname }: { pathname: string }) {
   return null;
 }
 
-export function Header({ actions }: HeaderProps) {
+export function Header({ actions, user }: HeaderProps) {
   const pathname = usePathname();
   const meta = pageMeta[pathname] ?? pageMeta["/"];
 
@@ -66,6 +69,9 @@ export function Header({ actions }: HeaderProps) {
         <Button variant="light" size="md" icon={<Icon name="bell" size={14} />}>
           3
         </Button>
+        {user ? (
+          <UserMenu name={user.name || user.email || "Utilisateur"} role={user.role} />
+        ) : null}
         <RouteActions pathname={pathname} />
         {actions}
       </div>

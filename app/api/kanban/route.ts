@@ -3,6 +3,7 @@ import { asc } from "drizzle-orm";
 
 import { db } from "@/db/index";
 import { kanbanCards } from "@/db/schema";
+import { requirePermission } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const access = await requirePermission("content.write");
+  if (access.error) return access.error;
+
   let body: Partial<{
     title: string;
     platform: string;

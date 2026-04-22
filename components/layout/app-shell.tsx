@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import type { Session } from "next-auth";
 
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
@@ -10,15 +12,21 @@ import { cx } from "@/lib/utils";
 type AppShellProps = {
   children: ReactNode;
   headerActions?: ReactNode;
+  user: Session["user"] | null;
 };
 
-export function AppShell({ children, headerActions }: AppShellProps) {
+export function AppShell({ children, headerActions, user }: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+
+  if (pathname === "/login") {
+    return <>{children}</>;
+  }
 
   return (
     <div className="min-h-screen md:grid md:grid-cols-shell">
       <div className="hidden md:block">
-        <Sidebar />
+        <Sidebar user={user} />
       </div>
 
       <div
@@ -36,7 +44,7 @@ export function AppShell({ children, headerActions }: AppShellProps) {
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <Sidebar onNavigate={() => setMobileOpen(false)} />
+        <Sidebar user={user} onNavigate={() => setMobileOpen(false)} />
       </div>
 
       <main className="flex min-w-0 flex-col">
@@ -54,7 +62,7 @@ export function AppShell({ children, headerActions }: AppShellProps) {
           </span>
           <span className="h-9 w-9" />
         </div>
-        <Header actions={headerActions} />
+        <Header user={user} actions={headerActions} />
         <div className="flex flex-1 flex-col gap-6 px-6 py-6 lg:px-8 lg:py-8">
           {children}
         </div>

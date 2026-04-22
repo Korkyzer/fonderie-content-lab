@@ -15,6 +15,13 @@
       "when": 1776883500000,
       "tag": "0001_prompt_persona_backfill",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1776893837961,
+      "tag": "0002_fluffy_tattoo",
+      "breakpoints": true
     }
   ]
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { toggleFavorite } from "@/lib/data/prompts";
 import { parsePromptId } from "@/app/api/prompts/payload";
+import { requirePermission } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,9 @@ export async function POST(
   _request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
+  const access = await requirePermission("content.write");
+  if (access.error) return access.error;
+
   const { id: raw } = await context.params;
   const id = parsePromptId(raw);
   if (id === null) {
