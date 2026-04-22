@@ -93,6 +93,9 @@ export const personas = sqliteTable("personas", {
   ageRange: text("age_range").notNull(),
   locationLabel: text("location_label").notNull(),
   educationLevel: text("education_level").notNull(),
+  // TODO(fcl-12): normalize persona list fields into child tables if this
+  // moves beyond seeded demo data. The current CSV storage keeps the shipping
+  // scope small, but it blocks relational filtering and referential integrity.
   preferredPlatforms: text("preferred_platforms").notNull(),
   vocabularyYes: text("vocabulary_yes").notNull(),
   vocabularyNo: text("vocabulary_no").notNull(),
