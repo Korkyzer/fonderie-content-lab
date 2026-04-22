@@ -13,7 +13,7 @@ export const navigation: NavItem[] = [
   { href: "/", label: "Dashboard", section: "Workspace", icon: "dashboard", kbd: "D" },
   {
     href: "/generator",
-    label: "Générateur IA",
+    label: "Générateur",
     section: "Workspace",
     icon: "generate",
     kbd: "G",
@@ -69,13 +69,13 @@ export const pageMeta: Record<
 > = {
   "/": {
     crumb: "Dashboard",
-    title: "Bonjour Laure, il reste 9 jours avant la JPO",
+    title: "Bonjour Laure 👋 · Il reste 9 jours avant la JPO",
     eyebrow: "Dashboard",
     description:
       "Vue d’ensemble éditoriale avec KPIs, activité récente et tendances écoles créatives.",
   },
   "/generator": {
-    crumb: "Générateur IA",
+    crumb: "Générateur",
     title: "Brief, variantes, aperçu Reel",
     eyebrow: "Atelier",
     description:
@@ -90,7 +90,7 @@ export const pageMeta: Record<
   },
   "/kanban": {
     crumb: "Production",
-    title: "Pipeline éditorial Fonderie",
+    title: "Kanban · contenus en cours",
     eyebrow: "Kanban",
     description:
       "De l’idée à la publication, suivez chaque contenu du brief jusqu’au post validé.",
@@ -107,7 +107,7 @@ export const pageMeta: Record<
     title: "Veille concurrentielle des écoles créatives",
     eyebrow: "Intelligence",
     description:
-      "Ce que publient Gobelins, Estienne, Penninghen et les autres — en temps réel.",
+      "Ce que publient Gobelins, Estienne, Penninghen et les autres, en temps réel.",
   },
   "/prompts": {
     crumb: "Prompts",

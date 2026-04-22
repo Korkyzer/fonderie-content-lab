@@ -6,6 +6,15 @@ import { kanbanCards } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
 
+const VALID_COLUMN_IDS = new Set([
+  "ideas",
+  "brief",
+  "production",
+  "review",
+  "validated",
+  "published",
+]);
+
 export async function GET() {
   const cards = db
     .select()
@@ -34,6 +43,14 @@ export async function POST(request: Request) {
     );
   }
 
+  const columnId = body.columnId?.trim() || "ideas";
+  if (!VALID_COLUMN_IDS.has(columnId)) {
+    return NextResponse.json(
+      { error: "Colonne invalide." },
+      { status: 400 },
+    );
+  }
+
   const inserted = db
     .insert(kanbanCards)
     .values({
@@ -43,7 +60,7 @@ export async function POST(request: Request) {
       campaign: body.campaign?.trim() || "JPO Mai 2026",
       assignee: body.assignee?.trim() || "Laure Reymond",
       dueDate: body.dueDate || new Date().toISOString(),
-      columnId: body.columnId?.trim() || "ideas",
+      columnId,
       aiProgress: 0,
     })
     .returning()

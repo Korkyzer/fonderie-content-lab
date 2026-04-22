@@ -190,7 +190,7 @@ export function KanbanBoard({ initialCards }: KanbanBoardProps) {
         <span className="mx-1 h-4 w-px bg-ink/15" />
         <Pill tone="purple" active={aiOnly} onClick={() => setAiOnly((v) => !v)}>
           <Icon name="sparkle" size={11} />
-          IA uniquement
+          Assisté uniquement
         </Pill>
         <Pill active={mineOnly} onClick={() => setMineOnly((v) => !v)}>
           Mes cartes
@@ -284,7 +284,7 @@ export function KanbanBoard({ initialCards }: KanbanBoardProps) {
                                 (card.aiProgress ?? 0) < 100 && (
                                   <div className="flex items-center gap-2 rounded-sm bg-purple/10 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.06em] text-purple-deep">
                                     <Icon name="sparkle" size={11} />
-                                    <span>IA en cours · {card.aiProgress}%</span>
+                                    <span>Génération · {card.aiProgress}%</span>
                                     <span className="ml-auto h-1 flex-1 overflow-hidden rounded-full bg-purple/20">
                                       <span
                                         className="block h-full bg-purple"
@@ -340,6 +340,7 @@ export function KanbanBoard({ initialCards }: KanbanBoardProps) {
       </DragDropContext>
 
       <AddCardDialog
+        key={`${dialogColumn}-${dialogOpen ? "open" : "closed"}`}
         open={dialogOpen}
         defaultColumn={dialogColumn}
         onClose={() => setDialogOpen(false)}
