@@ -1,14 +1,62 @@
-import type { BrandAnalysisResponse } from "@/app/api/brand-analysis/route";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
-import { SectionHeading } from "@/components/ui/section-heading";
-import { db } from "@/db/index";
-import { brandRules as brandRulesTable } from "@/db/schema";
+import { NextResponse } from "next/server";
 
-import { GuardianClient } from "./guardian-client";
+export type BrandAnalysisRequest = {
+  contentId?: string;
+  content?: string;
+  format?: string;
+};
 
-const SEED_ANALYSIS: BrandAnalysisResponse = {
+export type GuardianCheckState = "ok" | "warn" | "err";
+
+export type GuardianCheck = {
+  id: string;
+  label: string;
+  msg: string;
+  score: number;
+  max: number;
+  state: GuardianCheckState;
+};
+
+export type GuardianSlide = {
+  step: string;
+  title: string;
+  background: string;
+  tone?: "cream" | "ink" | "purple" | "sky" | "warning";
+  warning?: string;
+};
+
+export type GuardianSuggestion = {
+  slide: string;
+  wrongValue: string;
+  correctValue: string;
+  gain: number;
+  projectedScore: number;
+  description: string;
+};
+
+export type ValidationEvent = {
+  id: string;
+  author: string;
+  initials: string;
+  avatarTone: "purple" | "sky" | "orange" | "green";
+  title: string;
+  note: string;
+  time: string;
+};
+
+export type BrandAnalysisResponse = {
+  score: number;
+  verdict: string;
+  verdictSub: string;
+  tags: Array<{ label: string; tone: string }>;
+  checks: GuardianCheck[];
+  slides: GuardianSlide[];
+  suggestion: GuardianSuggestion;
+  history: ValidationEvent[];
+  meta: { author: string; format: string; analyzedAt: string };
+};
+
+const ANALYSIS: BrandAnalysisResponse = {
   score: 89,
   verdict: "Presque prêt",
   verdictSub:
@@ -104,45 +152,15 @@ const SEED_ANALYSIS: BrandAnalysisResponse = {
   meta: {
     author: "Thomas L.",
     format: "Carrousel · 5 slides",
-    analyzedAt: new Date(0).toISOString(),
+    analyzedAt: new Date().toISOString(),
   },
 };
 
-export default function BrandGuardianPage() {
-  const brandRuleRows = db
-    .select({
-      id: brandRulesTable.id,
-      category: brandRulesTable.category,
-      name: brandRulesTable.name,
-      description: brandRulesTable.description,
-      severity: brandRulesTable.severity,
-      expectedValue: brandRulesTable.expectedValue,
-    })
-    .from(brandRulesTable)
-    .all();
+export async function POST(request: Request) {
+  await request.json().catch(() => ({}));
+  return NextResponse.json(ANALYSIS);
+}
 
-  return (
-    <div className="flex flex-col gap-6">
-      <SectionHeading
-        eyebrow="Brand Guardian"
-        title="Analyse · Carrousel Motion Design"
-        description="Contrôle de conformité éditoriale, accessibilité et respect de la palette CFI."
-      />
-
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge tone="purple">Score {SEED_ANALYSIS.score}/100</Badge>
-        <Badge tone="yellow">Jaune off-brand</Badge>
-        <Badge tone="green">Correction +{SEED_ANALYSIS.suggestion.gain} pts</Badge>
-        <span className="mx-2 h-4 w-px bg-ink/15" />
-        <Button variant="light" icon={<Icon name="close" size={14} />}>
-          Renvoyer
-        </Button>
-        <Button variant="primary" icon={<Icon name="check" size={14} />}>
-          Approuver
-        </Button>
-      </div>
-
-      <GuardianClient initial={SEED_ANALYSIS} brandRules={brandRuleRows} />
-    </div>
-  );
+export async function GET() {
+  return NextResponse.json(ANALYSIS);
 }
