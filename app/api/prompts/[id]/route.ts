@@ -4,22 +4,20 @@ import {
   deletePromptById,
   getPromptById,
   updatePromptById,
-  type NewPrompt,
 } from "@/lib/data/prompts";
+import {
+  parsePromptId,
+  parsePromptPatchPayload,
+} from "@/app/api/prompts/payload";
 
 export const dynamic = "force-dynamic";
-
-function parseId(param: string) {
-  const id = Number.parseInt(param, 10);
-  return Number.isFinite(id) ? id : null;
-}
 
 export async function GET(
   _request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
   const { id: raw } = await context.params;
-  const id = parseId(raw);
+  const id = parsePromptId(raw);
   if (id === null) return NextResponse.json({ error: "id invalide" }, { status: 400 });
   const prompt = getPromptById(id);
   if (!prompt) return NextResponse.json({ error: "prompt introuvable" }, { status: 404 });
@@ -31,11 +29,22 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> },
 ) {
   const { id: raw } = await context.params;
-  const id = parseId(raw);
+  const id = parsePromptId(raw);
   if (id === null) return NextResponse.json({ error: "id invalide" }, { status: 400 });
 
-  const patch = (await request.json()) as Partial<NewPrompt>;
-  const prompt = updatePromptById(id, patch);
+  let payload: unknown;
+  try {
+    payload = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Payload JSON invalide" }, { status: 400 });
+  }
+
+  const result = parsePromptPatchPayload(payload);
+  if ("error" in result) {
+    return NextResponse.json({ error: result.error }, { status: 400 });
+  }
+
+  const prompt = updatePromptById(id, result.data);
   if (!prompt) return NextResponse.json({ error: "prompt introuvable" }, { status: 404 });
   return NextResponse.json({ prompt });
 }
@@ -45,7 +54,7 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> },
 ) {
   const { id: raw } = await context.params;
-  const id = parseId(raw);
+  const id = parsePromptId(raw);
   if (id === null) return NextResponse.json({ error: "id invalide" }, { status: 400 });
   const deleted = deletePromptById(id);
   if (!deleted)

@@ -56,7 +56,7 @@ async function main() {
       aiScore: 82,
       brandScore: 90,
     },
-  ]);
+  ]).run();
 
   db.insert(brandRules).values([
     {
@@ -83,7 +83,7 @@ async function main() {
       expectedValue: "Tutoiement",
       status: "active",
     },
-  ]);
+  ]).run();
 
   db.insert(kanbanCards).values([
     {
@@ -118,7 +118,7 @@ async function main() {
       aiProgress: 100,
       brandScore: 97,
     },
-  ]);
+  ]).run();
 
   db.insert(calendarEvents).values([
     {
@@ -170,7 +170,7 @@ async function main() {
       location: "Campus CFI",
       aiSuggestion: "Ajouter 2 contenus alumni pour équilibrer le mois.",
     },
-  ]);
+  ]).run();
 
   db.insert(competitors).values([
     {
@@ -209,7 +209,7 @@ async function main() {
       positioning: "Ton événementiel et rythme soutenu sur les stories",
       opportunity: "Monter une série stories Parcoursup plus claire et plus pédagogique.",
     },
-  ]);
+  ]).run();
 
   const now = new Date().toISOString();
 
@@ -503,7 +503,7 @@ async function main() {
       createdAt: now,
       updatedAt: now,
     },
-  ]);
+  ]).run();
 
   db.insert(personas).values([
     {
@@ -638,7 +638,7 @@ async function main() {
       sampleCopy:
         "Tu connais la promo. Tu vois les projets qui sortent. Le Mastère DCDG rentrée 2026 ouvre ses candidatures. Une promo à parrainer ? Une recommandation à faire ? On écoute 💌",
     },
-  ]);
+  ]).run();
 }
 
 main()

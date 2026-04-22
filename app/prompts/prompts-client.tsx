@@ -159,6 +159,7 @@ export function PromptsLibrary({ prompts }: Props) {
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
+              aria-label="Rechercher dans la bibliothèque de prompts"
               placeholder="Rechercher un prompt, un mot-clé, une audience…"
               className="flex-1 bg-transparent outline-none placeholder:text-ink/50"
             />
@@ -329,6 +330,7 @@ function Selector({ label, value, onChange, options }: SelectorProps) {
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        aria-label={label}
         className="appearance-none bg-transparent pr-2 font-bold text-ink outline-none"
       >
         {options.map((option) => (
@@ -361,37 +363,46 @@ function PromptGridCard({
   const tone = TONE_MAP[prompt.tone] ?? "purple";
   return (
     <article
-      onClick={onOpen}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onOpen();
-        }
-      }}
-      role="button"
-      tabIndex={0}
-      aria-pressed={active}
       className={cx(
-        "group flex cursor-pointer flex-col gap-3 rounded-md border bg-cream p-4 text-left transition-all",
+        "group flex flex-col gap-3 rounded-md border bg-cream p-4 text-left transition-all",
         active
           ? "border-ink shadow-[3px_3px_0_var(--ink)]"
           : "border-ink/6 hover:-translate-y-[2px] hover:border-ink hover:shadow-card",
       )}
     >
-      <Placeholder tone={tone} className="aspect-[16/8] rounded-sm" label={prompt.platform} />
-      <header className="flex items-start justify-between gap-2">
-        <h3 className="text-[15px] font-bold uppercase leading-tight tracking-[-0.005em]">
-          {prompt.title}
-        </h3>
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-pressed={active}
+        aria-label={`Ouvrir le prompt ${prompt.title}`}
+        className="flex flex-col gap-3 text-left"
+      >
+        <Placeholder
+          tone={tone}
+          className="aspect-[16/8] rounded-sm"
+          label={prompt.platform}
+        />
+        <header className="flex items-start justify-between gap-2">
+          <h3 className="text-[15px] font-bold uppercase leading-tight tracking-[-0.005em]">
+            {prompt.title}
+          </h3>
+          <Tag tone="outline">{prompt.category}</Tag>
+        </header>
+        <p className="min-h-[40px] text-[12px] leading-snug text-ink/70">
+          {prompt.description}
+        </p>
+        <footer className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.08em] text-ink/55">
+          <span>★ {prompt.rating.toFixed(1)} · {prompt.monthlyUsage} usages</span>
+          <span>{prompt.audience}</span>
+        </footer>
+      </button>
+      <div className="flex items-center gap-1.5 border-t border-ink/8 pt-3">
         <button
           type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            onToggleFavorite();
-          }}
+          onClick={onToggleFavorite}
           aria-label={prompt.favorite ? "Retirer des favoris" : "Ajouter aux favoris"}
           className={cx(
-            "grid h-7 w-7 shrink-0 place-items-center rounded-sm border transition-colors",
+            "grid h-8 w-8 shrink-0 place-items-center rounded-sm border transition-colors",
             prompt.favorite
               ? "border-ink bg-yellow text-ink"
               : "border-ink/15 bg-white text-ink/50 hover:text-ink",
@@ -399,23 +410,11 @@ function PromptGridCard({
         >
           <Icon name="heart" size={12} />
         </button>
-      </header>
-      <p className="min-h-[40px] text-[12px] leading-snug text-ink/70">
-        {prompt.description}
-      </p>
-      <footer className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.08em] text-ink/55">
-        <span>★ {prompt.rating.toFixed(1)} · {prompt.monthlyUsage} usages</span>
-        <Tag tone="outline">{prompt.category}</Tag>
-      </footer>
-      <div className="flex items-center gap-1.5 border-t border-ink/8 pt-3">
         <Button
           variant="light"
           size="sm"
           icon={<Icon name={copied ? "check" : "bookmark"} size={12} />}
-          onClick={(event) => {
-            event.stopPropagation();
-            onCopy();
-          }}
+          onClick={onCopy}
         >
           {copied ? "Copié" : "Copier"}
         </Button>
@@ -423,8 +422,7 @@ function PromptGridCard({
           variant="primary"
           size="sm"
           icon={<Icon name="sparkle" size={12} />}
-          onClick={(event) => {
-            event.stopPropagation();
+          onClick={() => {
             window.location.href = `/generator?prompt=${encodeURIComponent(
               prompt.slug,
             )}`;
@@ -447,27 +445,14 @@ function PromptListRow({
 }: CardProps) {
   return (
     <li
-      onClick={onOpen}
-      role="button"
-      tabIndex={0}
-      aria-pressed={active}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onOpen();
-        }
-      }}
       className={cx(
-        "flex cursor-pointer items-center gap-4 bg-white px-4 py-3 transition-colors hover:bg-cream",
+        "flex items-center gap-4 bg-white px-4 py-3 transition-colors hover:bg-cream",
         active && "bg-cream",
       )}
     >
       <button
         type="button"
-        onClick={(event) => {
-          event.stopPropagation();
-          onToggleFavorite();
-        }}
+        onClick={onToggleFavorite}
         aria-label={prompt.favorite ? "Retirer des favoris" : "Ajouter aux favoris"}
         className={cx(
           "grid h-7 w-7 shrink-0 place-items-center rounded-sm border transition-colors",
@@ -478,27 +463,32 @@ function PromptListRow({
       >
         <Icon name="heart" size={12} />
       </button>
-      <div className="min-w-0 flex-1">
-        <h3 className="truncate text-[13px] font-bold uppercase tracking-tight">
-          {prompt.title}
-        </h3>
-        <p className="truncate text-[12px] text-ink/60">{prompt.description}</p>
-      </div>
-      <Tag tone="outline">{prompt.category}</Tag>
-      <span className="hidden text-[11px] font-bold uppercase tracking-[0.08em] text-ink/55 sm:inline">
-        {prompt.audience}
-      </span>
-      <span className="hidden w-20 text-right text-[11px] font-bold uppercase tracking-[0.08em] text-ink/55 md:inline">
-        ★ {prompt.rating.toFixed(1)}
-      </span>
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-pressed={active}
+        aria-label={`Ouvrir le prompt ${prompt.title}`}
+        className="flex min-w-0 flex-1 items-center gap-4 text-left"
+      >
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-[13px] font-bold uppercase tracking-tight">
+            {prompt.title}
+          </h3>
+          <p className="truncate text-[12px] text-ink/60">{prompt.description}</p>
+        </div>
+        <Tag tone="outline">{prompt.category}</Tag>
+        <span className="hidden text-[11px] font-bold uppercase tracking-[0.08em] text-ink/55 sm:inline">
+          {prompt.audience}
+        </span>
+        <span className="hidden w-20 text-right text-[11px] font-bold uppercase tracking-[0.08em] text-ink/55 md:inline">
+          ★ {prompt.rating.toFixed(1)}
+        </span>
+      </button>
       <Button
         variant="light"
         size="sm"
         icon={<Icon name={copied ? "check" : "bookmark"} size={12} />}
-        onClick={(event) => {
-          event.stopPropagation();
-          onCopy();
-        }}
+        onClick={onCopy}
       >
         {copied ? "Copié" : "Copier"}
       </Button>
