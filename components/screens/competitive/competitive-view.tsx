@@ -11,7 +11,7 @@ import { Placeholder, type PlaceholderTone } from "@/components/ui/placeholder";
 import { cx } from "@/lib/utils";
 
 import {
-  COMPETITOR_VISUALS,
+  getCompetitorVisual,
   FEED_FILTERS,
   POSTS,
   TRENDS,
@@ -59,6 +59,10 @@ export function CompetitiveView({ competitors }: CompetitiveViewProps) {
   const [filter, setFilter] = useState<FeedFilter>("Tous");
 
   const visibleCompetitors = competitors.slice(0, 4);
+  const competitorsByHandle = useMemo(
+    () => new Map(visibleCompetitors.map((competitor) => [competitor.handle, competitor])),
+    [visibleCompetitors],
+  );
   const totalPosts = visibleCompetitors.reduce(
     (sum, comp) => sum + comp.monthlyPosts,
     0,
@@ -95,8 +99,8 @@ export function CompetitiveView({ competitors }: CompetitiveViewProps) {
       </header>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {visibleCompetitors.map((competitor, index) => {
-          const visual = COMPETITOR_VISUALS[index % COMPETITOR_VISUALS.length];
+        {visibleCompetitors.map((competitor) => {
+          const visual = getCompetitorVisual(competitor.handle);
           const deltaDir =
             competitor.deltaPercent > 0
               ? "text-green-sapin"
@@ -178,11 +182,8 @@ export function CompetitiveView({ competitors }: CompetitiveViewProps) {
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filteredPosts.map((post) => {
-              const competitor = visibleCompetitors[post.competitorIndex];
-              const visual =
-                COMPETITOR_VISUALS[
-                  post.competitorIndex % COMPETITOR_VISUALS.length
-                ];
+              const competitor = competitorsByHandle.get(post.competitorHandle);
+              const visual = getCompetitorVisual(post.competitorHandle);
               const placeholderTone = post.tone as PlaceholderTone;
               const aspectClass =
                 post.aspectRatio === "4/5"
@@ -307,7 +308,7 @@ export function CompetitiveView({ competitors }: CompetitiveViewProps) {
           more={<span>{visibleCompetitors.length} écoles suivies</span>}
         />
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          {visibleCompetitors.map((competitor, index) => (
+          {visibleCompetitors.map((competitor) => (
             <div
               key={competitor.id}
               className="rounded-md border border-ink/8 bg-white p-4"
@@ -317,12 +318,10 @@ export function CompetitiveView({ competitors }: CompetitiveViewProps) {
                   <div
                     className={cx(
                       "grid h-7 w-7 place-items-center rounded-sm border border-ink text-[11px] font-bold uppercase",
-                      COMPETITOR_VISUALS[
-                        index % COMPETITOR_VISUALS.length
-                      ].color,
+                      getCompetitorVisual(competitor.handle).color,
                     )}
                   >
-                    {COMPETITOR_VISUALS[index % COMPETITOR_VISUALS.length].short}
+                    {getCompetitorVisual(competitor.handle).short}
                   </div>
                   <span className="text-[13px] font-bold">
                     {competitor.name}

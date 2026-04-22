@@ -107,7 +107,7 @@ export const pageMeta: Record<
     title: "Veille concurrentielle des écoles créatives",
     eyebrow: "Intelligence",
     description:
-      "Ce que publient Gobelins, Estienne, Penninghen et les autres — en temps réel.",
+      "Ce que publient Gobelins, LISAA, ECV et Cifacom sur les 30 derniers jours.",
   },
   "/prompts": {
     crumb: "Prompts",
