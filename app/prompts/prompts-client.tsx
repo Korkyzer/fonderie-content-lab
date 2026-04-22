@@ -270,7 +270,7 @@ export function PromptsLibrary({ prompts }: Props) {
               </p>
             </div>
           ) : view === "grid" ? (
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
               {filtered.map((prompt) => (
                 <PromptGridCard
                   key={prompt.id}
@@ -409,19 +409,20 @@ function PromptGridCard({
         >
           <Icon name="heart" size={12} />
         </button>
-        <Button
-          variant="light"
-          size="sm"
-          icon={<Icon name={copied ? "check" : "bookmark"} size={12} />}
+        <button
+          type="button"
           onClick={onCopy}
+          aria-label={copied ? "Prompt copié" : "Copier le prompt"}
+          className="grid h-8 w-8 shrink-0 place-items-center rounded-sm border border-ink/15 bg-white text-ink/70 transition-colors hover:border-ink hover:text-ink"
         >
-          {copied ? "Copié" : "Copier"}
-        </Button>
+          <Icon name={copied ? "check" : "bookmark"} size={12} />
+        </button>
         <Button
           variant="primary"
           size="sm"
           icon={<Icon name="sparkle" size={12} />}
           onClick={onUse}
+          className="ml-auto"
         >
           Utiliser
         </Button>
