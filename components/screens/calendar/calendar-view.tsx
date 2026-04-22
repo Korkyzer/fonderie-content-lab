@@ -74,6 +74,11 @@ function getMondayIndex(date: Date) {
   return (getDay(date) + 6) % 7;
 }
 
+function parseCalendarEventDate(value: string) {
+  const [year, month, day] = value.slice(0, 10).split("-").map(Number);
+  return new Date(year, month - 1, day, 12);
+}
+
 export function CalendarView({
   campaignEvents,
   scheduledCount,
@@ -419,9 +424,13 @@ export function CalendarView({
               <div className="flex items-center justify-between gap-2">
                 <Badge tone="purple">{event.campaign}</Badge>
                 <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink/55">
-                  {format(new Date(event.startDate), "dd MMM", { locale: fr })}
+                  {format(parseCalendarEventDate(event.startDate), "dd MMM", {
+                    locale: fr,
+                  })}
                   {" → "}
-                  {format(new Date(event.endDate), "dd MMM", { locale: fr })}
+                  {format(parseCalendarEventDate(event.endDate), "dd MMM", {
+                    locale: fr,
+                  })}
                 </span>
               </div>
               <p className="mt-2 text-[14px] font-bold">{event.title}</p>
