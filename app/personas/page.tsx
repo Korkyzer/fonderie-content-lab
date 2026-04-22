@@ -1,20 +1,10 @@
+import { PersonasExplorer } from "./personas-client";
 
-import { ScreenFrame } from "@/components/screens/screen-frame";
+import { listPersonas } from "@/lib/data/personas";
+
+export const dynamic = "force-dynamic";
 
 export default function PersonasPage() {
-  return (
-
-      <ScreenFrame
-        eyebrow="Audience Personas"
-        title="4 personas et 5 314 ciblables"
-        description="Segments prioritaires, ton de voix, plateformes et lexique recommandé par audience."
-        highlights={[
-          { label: "Lycéens 16-20", tone: "yellow" },
-          { label: "Parents", tone: "sky" },
-          { label: "Entreprises partenaires", tone: "pink" },
-          { label: "Alumni", tone: "caramel" },
-        ]}
-      />
-
-  );
+  const personas = listPersonas();
+  return <PersonasExplorer personas={personas} />;
 }

@@ -1,19 +1,10 @@
+import { PromptsLibrary } from "./prompts-client";
 
-import { ScreenFrame } from "@/components/screens/screen-frame";
+import { listPrompts } from "@/lib/data/prompts";
+
+export const dynamic = "force-dynamic";
 
 export default function PromptsPage() {
-  return (
-
-      <ScreenFrame
-        eyebrow="Bibliothèque de prompts"
-        title="32 templates et 8 catégories"
-        description="Base éditoriale réutilisable pour recrutement, événements, alumni et contenus campus."
-        highlights={[
-          { label: "JPO teaser reel", tone: "purple" },
-          { label: "Parcoursup", tone: "yellow" },
-          { label: "Newsletter alumni", tone: "caramel" },
-        ]}
-      />
-
-  );
+  const prompts = listPrompts();
+  return <PromptsLibrary prompts={prompts} />;
 }
