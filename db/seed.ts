@@ -9,6 +9,10 @@ import {
   prompts,
 } from "@/db/schema";
 
+function serializeList(...items: string[]): string {
+  return JSON.stringify(items);
+}
+
 async function main() {
   db.delete(contentItems).run();
   db.delete(brandRules).run();
@@ -519,21 +523,46 @@ async function main() {
       ageRange: "16-20 ans",
       locationLabel: "Île-de-France majoritaire, +30% hors région",
       educationLevel: "Seconde, Première, Terminale, bac +1",
-      preferredPlatforms: "Instagram Reel,TikTok,Stories",
-      vocabularyYes: "tu,viens,check,atelier,projet,ouf,cool",
-      vocabularyNo: "vous,notre établissement,cursus,dispositif,clientèle",
-      goals:
-        "Trouver une formation créative concrète,Se projeter dans un métier,Voir des projets d'étudiants réels,Être rassuré·e sur le parcours",
-      painPoints:
-        "Parcoursup anxiogène,Peur du jury,Doute sur le débouché pro,Parents sceptiques sur l'art",
-      keyMessages:
-        "100% projets dès la 1re année,Intervenants pros actifs,Campus accessible métro,Alumni dans les studios reconnus",
+      preferredPlatforms: serializeList("Instagram Reel", "TikTok", "Stories"),
+      vocabularyYes: serializeList("tu", "viens", "check", "atelier", "projet", "ouf", "cool"),
+      vocabularyNo: serializeList(
+        "vous",
+        "notre établissement",
+        "cursus",
+        "dispositif",
+        "clientèle",
+      ),
+      goals: serializeList(
+        "Trouver une formation créative concrète",
+        "Se projeter dans un métier",
+        "Voir des projets d'étudiants réels",
+        "Être rassuré·e sur le parcours",
+      ),
+      painPoints: serializeList(
+        "Parcoursup anxiogène",
+        "Peur du jury",
+        "Doute sur le débouché pro",
+        "Parents sceptiques sur l'art",
+      ),
+      keyMessages: serializeList(
+        "100% projets dès la 1re année",
+        "Intervenants pros actifs",
+        "Campus accessible métro",
+        "Alumni dans les studios reconnus",
+      ),
       engagementRate: "9,2%",
       bestHour: "18h-21h",
-      topContent:
-        "Reel atelier sérigraphie - 12,4% engagement,Story J-3 Parcoursup - 8,8% clic,Carrousel 'Une journée type' - 9,1%",
-      recommendations:
-        "Reel behind-the-scenes hebdo,Story sondage projection métier,Carrousel témoignage étudiant,Live TikTok Q&A admissions",
+      topContent: serializeList(
+        "Reel atelier sérigraphie - 12,4% engagement",
+        "Story J-3 Parcoursup - 8,8% clic",
+        "Carrousel 'Une journée type' - 9,1%",
+      ),
+      recommendations: serializeList(
+        "Reel behind-the-scenes hebdo",
+        "Story sondage projection métier",
+        "Carrousel témoignage étudiant",
+        "Live TikTok Q&A admissions",
+      ),
       sampleBrief:
         "Annoncer l'ouverture des inscriptions pour le Mastère DCDG rentrée 2026.",
       sampleCopy:
@@ -552,21 +581,47 @@ async function main() {
       ageRange: "42-58 ans",
       locationLabel: "France entière, urbain et péri-urbain",
       educationLevel: "Bac +3 à bac +5 en majorité",
-      preferredPlatforms: "LinkedIn,Email,Facebook,Instagram feed",
-      vocabularyYes: "formation,diplôme,insertion,partenaires,alternance,suivi",
-      vocabularyNo: "ouf,viens,tu,stylé",
-      goals:
-        "S'assurer du sérieux du diplôme,Comprendre les débouchés,Visualiser le financement,Rencontrer les équipes",
-      painPoints:
-        "Peur d'un mauvais investissement,Manque de repères sur les métiers créatifs,Inquiétude sur l'emploi,Processus Parcoursup complexe",
-      keyMessages:
-        "Titres RNCP reconnus,94% d'insertion à 6 mois,Alternance possible,Accompagnement individualisé",
+      preferredPlatforms: serializeList("LinkedIn", "Email", "Facebook", "Instagram feed"),
+      vocabularyYes: serializeList(
+        "formation",
+        "diplôme",
+        "insertion",
+        "partenaires",
+        "alternance",
+        "suivi",
+      ),
+      vocabularyNo: serializeList("ouf", "viens", "tu", "stylé"),
+      goals: serializeList(
+        "S'assurer du sérieux du diplôme",
+        "Comprendre les débouchés",
+        "Visualiser le financement",
+        "Rencontrer les équipes",
+      ),
+      painPoints: serializeList(
+        "Peur d'un mauvais investissement",
+        "Manque de repères sur les métiers créatifs",
+        "Inquiétude sur l'emploi",
+        "Processus Parcoursup complexe",
+      ),
+      keyMessages: serializeList(
+        "Titres RNCP reconnus",
+        "94% d'insertion à 6 mois",
+        "Alternance possible",
+        "Accompagnement individualisé",
+      ),
       engagementRate: "4,8%",
       bestHour: "12h-14h",
-      topContent:
-        "Carrousel 'Insertion pro' - 7,2% clic,Post témoignage parent - 5,4%,Email brochure formation - 18% ouverture",
-      recommendations:
-        "Webinaire trimestriel,Post LinkedIn chiffres clés,Témoignage parent + enfant,Email fiche formation téléchargeable",
+      topContent: serializeList(
+        "Carrousel 'Insertion pro' - 7,2% clic",
+        "Post témoignage parent - 5,4%",
+        "Email brochure formation - 18% ouverture",
+      ),
+      recommendations: serializeList(
+        "Webinaire trimestriel",
+        "Post LinkedIn chiffres clés",
+        "Témoignage parent + enfant",
+        "Email fiche formation téléchargeable",
+      ),
       sampleBrief:
         "Annoncer l'ouverture des inscriptions pour le Mastère DCDG rentrée 2026.",
       sampleCopy:
@@ -585,21 +640,47 @@ async function main() {
       ageRange: "30-55 ans, DA et RH",
       locationLabel: "Paris, Île-de-France, Lyon, Bordeaux",
       educationLevel: "Décideurs studios, agences, marques",
-      preferredPlatforms: "LinkedIn,Email,Site partenaires",
-      vocabularyYes: "savoir-faire,pédagogie,workshop,talents,brief réel,livraison",
-      vocabularyNo: "stylé,ouf,super cool",
-      goals:
-        "Identifier de jeunes talents,Lancer un workshop co-construit,Capter des alternants qualifiés,Renforcer leur marque employeur",
-      painPoints:
-        "Difficulté à trouver des alternants formés,Qualité variable d'autres écoles,Manque de visibilité sur les projets,Process RH lourd",
-      keyMessages:
-        "Profils opérationnels dès l'alternance,Workshops co-brandés disponibles,Alumni dans les studios phares,Process de sourcing simple",
+      preferredPlatforms: serializeList("LinkedIn", "Email", "Site partenaires"),
+      vocabularyYes: serializeList(
+        "savoir-faire",
+        "pédagogie",
+        "workshop",
+        "talents",
+        "brief réel",
+        "livraison",
+      ),
+      vocabularyNo: serializeList("stylé", "ouf", "super cool"),
+      goals: serializeList(
+        "Identifier de jeunes talents",
+        "Lancer un workshop co-construit",
+        "Capter des alternants qualifiés",
+        "Renforcer leur marque employeur",
+      ),
+      painPoints: serializeList(
+        "Difficulté à trouver des alternants formés",
+        "Qualité variable d'autres écoles",
+        "Manque de visibilité sur les projets",
+        "Process RH lourd",
+      ),
+      keyMessages: serializeList(
+        "Profils opérationnels dès l'alternance",
+        "Workshops co-brandés disponibles",
+        "Alumni dans les studios phares",
+        "Process de sourcing simple",
+      ),
       engagementRate: "3,1%",
       bestHour: "09h-11h",
-      topContent:
-        "Post LinkedIn workshop Publicis - 6,1%,Case study alternance - 4,2%,Email directeurs artistiques - 22% ouverture",
-      recommendations:
-        "Post LinkedIn mensuel case study,Webinaire annuel partenariats,Mail ciblé DA avec portfolios,Invitation JPO entreprises",
+      topContent: serializeList(
+        "Post LinkedIn workshop Publicis - 6,1%",
+        "Case study alternance - 4,2%",
+        "Email directeurs artistiques - 22% ouverture",
+      ),
+      recommendations: serializeList(
+        "Post LinkedIn mensuel case study",
+        "Webinaire annuel partenariats",
+        "Mail ciblé DA avec portfolios",
+        "Invitation JPO entreprises",
+      ),
       sampleBrief:
         "Annoncer l'ouverture des inscriptions pour le Mastère DCDG rentrée 2026.",
       sampleCopy:
@@ -618,21 +699,47 @@ async function main() {
       ageRange: "22-45 ans",
       locationLabel: "France, Europe, international (12%)",
       educationLevel: "Bac +3 à bac +5 CFI",
-      preferredPlatforms: "Email,LinkedIn,Instagram,Événements",
-      vocabularyYes: "promo,atelier,prof-ref,campus,projet signature,réseau",
-      vocabularyNo: "ancien·nes,étudiants,à vous de jouer",
-      goals:
-        "Rester connecté·e à la promo,Recruter via le réseau,Mentor un·e plus jeune,Voir l'évolution de l'école",
-      painPoints:
-        "Sentiment d'éloignement post-diplôme,Peu de sollicitations pertinentes,Plateformes alumni peu actives ailleurs,Peu de temps dispo",
-      keyMessages:
-        "Ton réseau CFI est actif,Ta promo se retrouve chaque année,Tes projets étudiants valorisés,Tes recos comptent pour recruter",
+      preferredPlatforms: serializeList("Email", "LinkedIn", "Instagram", "Événements"),
+      vocabularyYes: serializeList(
+        "promo",
+        "atelier",
+        "prof-ref",
+        "campus",
+        "projet signature",
+        "réseau",
+      ),
+      vocabularyNo: serializeList("ancien·nes", "étudiants", "à vous de jouer"),
+      goals: serializeList(
+        "Rester connecté·e à la promo",
+        "Recruter via le réseau",
+        "Mentor un·e plus jeune",
+        "Voir l'évolution de l'école",
+      ),
+      painPoints: serializeList(
+        "Sentiment d'éloignement post-diplôme",
+        "Peu de sollicitations pertinentes",
+        "Plateformes alumni peu actives ailleurs",
+        "Peu de temps dispo",
+      ),
+      keyMessages: serializeList(
+        "Ton réseau CFI est actif",
+        "Ta promo se retrouve chaque année",
+        "Tes projets étudiants valorisés",
+        "Tes recos comptent pour recruter",
+      ),
       engagementRate: "7,4%",
       bestHour: "20h-22h",
-      topContent:
-        "Newsletter portrait - 31% ouverture,Post LinkedIn retrouvailles - 8,4%,Story 'Où sont-ils' - 6,9%",
-      recommendations:
-        "Newsletter mensuelle portrait,Événement promo physique annuel,Post LinkedIn rétrospective,Email offres d'emploi exclusives",
+      topContent: serializeList(
+        "Newsletter portrait - 31% ouverture",
+        "Post LinkedIn retrouvailles - 8,4%",
+        "Story 'Où sont-ils' - 6,9%",
+      ),
+      recommendations: serializeList(
+        "Newsletter mensuelle portrait",
+        "Événement promo physique annuel",
+        "Post LinkedIn rétrospective",
+        "Email offres d'emploi exclusives",
+      ),
       sampleBrief:
         "Annoncer l'ouverture des inscriptions pour le Mastère DCDG rentrée 2026.",
       sampleCopy:

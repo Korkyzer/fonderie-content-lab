@@ -133,13 +133,7 @@ export function PromptsLibrary({ prompts }: Props) {
   }
 
   function openInGenerator(prompt: Prompt) {
-    const params = new URLSearchParams({
-      prompt: prompt.slug,
-      title: prompt.title,
-      body: prompt.body,
-      platform: prompt.platform,
-      audience: prompt.audience,
-    });
+    const params = new URLSearchParams({ prompt: prompt.slug });
     router.push(`/generator?${params.toString()}`);
   }
 
