@@ -6,18 +6,27 @@ export const COLUMN_DEFS: ReadonlyArray<{
   dotColor: string;
   accent: PlaceholderTone;
 }> = [
-  { id: "ideas", title: "Idées", dotColor: "var(--color-lila)", accent: "purple" },
-  { id: "brief", title: "Brief", dotColor: "var(--color-sky)", accent: "sky" },
+  { id: "ideas", title: "Brouillon", dotColor: "var(--color-lila)", accent: "purple" },
+  { id: "brief", title: "En rédaction", dotColor: "var(--color-sky)", accent: "sky" },
   {
     id: "production",
-    title: "En production",
+    title: "Revue interne",
     dotColor: "var(--color-orange)",
     accent: "orange",
   },
-  { id: "review", title: "Review", dotColor: "var(--color-yellow)", accent: "yellow" },
-  { id: "validated", title: "Validé", dotColor: "var(--color-green)", accent: "green" },
+  { id: "review", title: "Approuvé", dotColor: "var(--color-yellow)", accent: "yellow" },
+  { id: "validated", title: "Planifié", dotColor: "var(--color-green)", accent: "green" },
   { id: "published", title: "Publié", dotColor: "var(--color-ink)", accent: "ink" },
 ];
+
+export const PRIORITY_OPTIONS = ["urgent", "normal", "can_wait"] as const;
+export type KanbanPriority = (typeof PRIORITY_OPTIONS)[number];
+
+export const PRIORITY_LABEL: Record<KanbanPriority, string> = {
+  urgent: "Urgent",
+  normal: "Normal",
+  can_wait: "Peut attendre",
+};
 
 export type KanbanCardRow = {
   id: number;
@@ -30,4 +39,26 @@ export type KanbanCardRow = {
   dueDate: string;
   aiProgress: number | null;
   brandScore: number | null;
+  priority: KanbanPriority;
+  reviewerId: string | null;
+  deadline: string | null;
 };
+
+export type KanbanComment = {
+  id: number;
+  cardId: number;
+  author: string;
+  content: string;
+  createdAt: string;
+};
+
+export type KanbanTransition = {
+  id: number;
+  cardId: number;
+  fromStatus: string | null;
+  toStatus: string;
+  user: string;
+  createdAt: string;
+};
+
+export const SLA_HOURS_THRESHOLD = 72;

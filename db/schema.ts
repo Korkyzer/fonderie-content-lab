@@ -36,6 +36,26 @@ export const kanbanCards = sqliteTable("kanban_cards", {
   dueDate: text("due_date").notNull(),
   aiProgress: integer("ai_progress"),
   brandScore: integer("brand_score"),
+  priority: text("priority").notNull().default("normal"),
+  reviewerId: text("reviewer_id"),
+  deadline: text("deadline"),
+});
+
+export const kanbanComments = sqliteTable("kanban_comments", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  cardId: integer("card_id").notNull(),
+  author: text("author").notNull(),
+  content: text("content").notNull(),
+  createdAt: text("created_at").notNull(),
+});
+
+export const kanbanTransitions = sqliteTable("kanban_transitions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  cardId: integer("card_id").notNull(),
+  fromStatus: text("from_status"),
+  toStatus: text("to_status").notNull(),
+  user: text("user").notNull(),
+  createdAt: text("created_at").notNull(),
 });
 
 export const calendarEvents = sqliteTable("calendar_events", {
