@@ -25,7 +25,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const body = (await request.json()) as Partial<{
+  let body: Partial<{
     title: string;
     platform: string;
     persona: string;
@@ -34,6 +34,16 @@ export async function POST(request: Request) {
     dueDate: string;
     columnId: string;
   }>;
+
+  try {
+    body = (await request.json()) as typeof body;
+  } catch {
+    return NextResponse.json({ error: "JSON invalide." }, { status: 400 });
+  }
+
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return NextResponse.json({ error: "JSON invalide." }, { status: 400 });
+  }
 
   const title = body.title?.trim();
   if (!title) {

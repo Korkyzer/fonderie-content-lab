@@ -57,6 +57,38 @@ const PLATFORM_ACCENTS: Record<string, BadgeTone> = {
   Story: "yellow",
 };
 
+function moveItem<T>(items: T[], fromIndex: number, toIndex: number) {
+  const nextItems = [...items];
+  const [movedItem] = nextItems.splice(fromIndex, 1);
+  nextItems.splice(toIndex, 0, movedItem);
+  return nextItems;
+}
+
+function reorderVisibleCards(
+  cards: KanbanCardRow[],
+  columnId: string,
+  orderedIds: number[],
+) {
+  if (orderedIds.length === 0) return cards;
+
+  const orderedIdSet = new Set(orderedIds);
+  const cardsById = new Map(cards.map((card) => [card.id, card]));
+  const orderedCards = orderedIds
+    .map((id) => cardsById.get(id))
+    .filter((card): card is KanbanCardRow => Boolean(card));
+  let orderedIndex = 0;
+
+  return cards.map((card) => {
+    if (card.columnId !== columnId || !orderedIdSet.has(card.id)) {
+      return card;
+    }
+
+    const nextCard = orderedCards[orderedIndex];
+    orderedIndex += 1;
+    return nextCard ?? card;
+  });
+}
+
 function daysUntil(dueDate: string) {
   const diffMs = new Date(dueDate).getTime() - Date.now();
   const days = Math.round(diffMs / 86_400_000);
@@ -90,6 +122,7 @@ export function KanbanBoard({ initialCards }: KanbanBoardProps) {
   const [mineOnly, setMineOnly] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogColumn, setDialogColumn] = useState(COLUMN_DEFS[0].id);
+  const [dialogInstance, setDialogInstance] = useState(0);
   const [, startTransition] = useTransition();
 
   const filtered = useMemo(() => {
@@ -122,12 +155,36 @@ export function KanbanBoard({ initialCards }: KanbanBoardProps) {
 
     const cardId = Number(draggableId);
     const targetColumn = destination.droppableId;
-
-    setCards((prev) =>
-      prev.map((card) =>
-        card.id === cardId ? { ...card, columnId: targetColumn } : card,
-      ),
+    const previousCards = cards;
+    const sourceCardIds = (byColumn[source.droppableId] ?? []).map((card) => card.id);
+    const destinationCardIds = (byColumn[destination.droppableId] ?? []).map(
+      (card) => card.id,
     );
+
+    setCards((prev) => {
+      if (source.droppableId === destination.droppableId) {
+        const reorderedIds = moveItem(
+          sourceCardIds,
+          source.index,
+          destination.index,
+        );
+        return reorderVisibleCards(prev, source.droppableId, reorderedIds);
+      }
+
+      const nextSourceIds = sourceCardIds.filter((id) => id !== cardId);
+      const nextDestinationIds = [...destinationCardIds];
+      nextDestinationIds.splice(destination.index, 0, cardId);
+
+      const movedCards = prev.map((card) =>
+        card.id === cardId ? { ...card, columnId: targetColumn } : card,
+      );
+
+      return reorderVisibleCards(
+        reorderVisibleCards(movedCards, source.droppableId, nextSourceIds),
+        targetColumn,
+        nextDestinationIds,
+      );
+    });
 
     startTransition(() => {
       fetch(`/api/kanban/${cardId}`, {
@@ -135,13 +192,7 @@ export function KanbanBoard({ initialCards }: KanbanBoardProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ columnId: targetColumn }),
       }).catch(() => {
-        setCards((prev) =>
-          prev.map((card) =>
-            card.id === cardId
-              ? { ...card, columnId: source.droppableId }
-              : card,
-          ),
-        );
+        setCards(previousCards);
       });
     });
   }
@@ -222,6 +273,7 @@ export function KanbanBoard({ initialCards }: KanbanBoardProps) {
                     aria-label={`Ajouter dans ${column.title}`}
                     onClick={() => {
                       setDialogColumn(column.id);
+                      setDialogInstance((value) => value + 1);
                       setDialogOpen(true);
                     }}
                     className="grid h-6 w-6 place-items-center rounded-sm text-ink/50 transition-colors hover:bg-ink hover:text-cream"
@@ -340,7 +392,7 @@ export function KanbanBoard({ initialCards }: KanbanBoardProps) {
       </DragDropContext>
 
       <AddCardDialog
-        key={`${dialogColumn}-${dialogOpen ? "open" : "closed"}`}
+        key={dialogInstance}
         open={dialogOpen}
         defaultColumn={dialogColumn}
         onClose={() => setDialogOpen(false)}
