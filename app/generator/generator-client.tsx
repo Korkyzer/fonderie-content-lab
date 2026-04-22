@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import type { BadgeTone } from "@/components/ui/badge";
@@ -456,6 +457,20 @@ export function GeneratorClient({
                   <Button variant="primary" icon={<Icon name="check" size={14} />}>
                     Envoyer en production
                   </Button>
+                  <Link
+                    href={{
+                      pathname: "/brand-guardian",
+                      query: {
+                        content: `${variant.hook}\n\n${variant.caption}\n\n${variant.hashtags.join(" ")}`,
+                        autoAnalyze: "1",
+                      },
+                    }}
+                    className="inline-flex items-center gap-2 rounded-sm border border-ink bg-purple px-3 py-2 text-[12px] font-bold text-ink transition-colors hover:bg-purple/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+                    aria-label="Vérifier la conformité brand de la variante"
+                  >
+                    <Icon name="shield" size={14} />
+                    Vérifier la conformité
+                  </Link>
                   <Button
                     variant="light"
                     icon={<Icon name="sparkle" size={14} />}

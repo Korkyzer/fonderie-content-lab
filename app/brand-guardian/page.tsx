@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -56,7 +58,9 @@ export default function BrandGuardianPage() {
         </Button>
       </div>
 
-      <GuardianClient initial={initialAnalysis} brandRules={brandRuleRows} />
+      <Suspense fallback={null}>
+        <GuardianClient initial={initialAnalysis} brandRules={brandRuleRows} />
+      </Suspense>
     </div>
   );
 }

@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
 
 import type {
   BrandAnalysisResponse,
   BrandTone,
+  BrandViolation,
   GuardianCheck,
   GuardianCheckState,
 } from "@/lib/brand-guardian-mock";
@@ -53,13 +55,29 @@ const CHECK_STATE_STYLES: Record<
   err: { chip: "bg-red text-cream", ring: "ring-red", label: "Bloquant" },
 };
 
+const VIOLATION_STYLES: Record<
+  BrandViolation["severity"],
+  { badge: "red" | "orange" | "sky"; label: string; border: string; bg: string }
+> = {
+  error: { badge: "red", label: "Erreur", border: "border-red", bg: "bg-red/10" },
+  warning: { badge: "orange", label: "Attention", border: "border-orange", bg: "bg-orange/10" },
+  info: { badge: "sky", label: "Info", border: "border-sky", bg: "bg-sky/10" },
+};
+
 export function GuardianClient({ initial, brandRules }: GuardianClientProps) {
+  const searchParams = useSearchParams();
+  const incomingContent = searchParams.get("content");
+  const autoAnalyze = searchParams.get("autoAnalyze") === "1";
+
   const [analysis, setAnalysis] = useState<BrandAnalysisResponse>(initial);
   const [draft, setDraft] = useState(
-    "Viens créer ton futur à la Fonderie · JPO 17 mai, campus Bagnolet. Motion design, sérigraphie, DA.",
+    incomingContent?.trim() ||
+      "Viens créer ton futur à la Fonderie · JPO 17 mai, campus Bagnolet. Motion design, sérigraphie, DA.",
   );
   const [fixedSlides, setFixedSlides] = useState<Set<number>>(new Set());
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const autoAnalyzedRef = useRef(false);
 
   const hasFix = fixedSlides.size > 0;
   const effectiveScore = hasFix
@@ -68,19 +86,38 @@ export function GuardianClient({ initial, brandRules }: GuardianClientProps) {
   const ringCirc = 2 * Math.PI * 62;
   const offset = ringCirc * (1 - effectiveScore / 100);
 
-  const analyzeDraft = () => {
+  const analyzeDraft = (overrideContent?: string) => {
+    const contentToAnalyze = (overrideContent ?? draft).trim();
+    if (!contentToAnalyze) return;
+    setAnalysisError(null);
     startTransition(async () => {
-      const res = await fetch("/api/brand-analysis", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ content: draft, format: "post-instagram" }),
-      });
-      if (!res.ok) return;
-      const data = (await res.json()) as BrandAnalysisResponse;
-      setAnalysis(data);
-      setFixedSlides(new Set());
+      try {
+        const res = await fetch("/api/brand-analysis", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ content: contentToAnalyze, format: "post-instagram" }),
+        });
+        if (!res.ok) {
+          setAnalysisError(`Analyse indisponible (HTTP ${res.status}).`);
+          return;
+        }
+        const data = (await res.json()) as BrandAnalysisResponse;
+        setAnalysis(data);
+        setFixedSlides(new Set());
+      } catch (error) {
+        setAnalysisError(error instanceof Error ? error.message : "Analyse en erreur.");
+      }
     });
   };
+
+  useEffect(() => {
+    if (!autoAnalyze || autoAnalyzedRef.current) return;
+    if (!incomingContent?.trim()) return;
+    autoAnalyzedRef.current = true;
+    const content = incomingContent;
+    queueMicrotask(() => analyzeDraft(content));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoAnalyze, incomingContent]);
 
   const autoFix = () => {
     setFixedSlides(new Set([2]));
@@ -295,15 +332,61 @@ export function GuardianClient({ initial, brandRules }: GuardianClientProps) {
               <Button
                 variant="dark"
                 size="sm"
-                onClick={analyzeDraft}
+                onClick={() => analyzeDraft()}
                 disabled={isPending}
                 icon={<Icon name="shield" size={14} />}
               >
                 {isPending ? "Analyse…" : "Analyser"}
               </Button>
             </div>
+            {isPending ? (
+              <p
+                className="text-[11px] font-bold uppercase tracking-[0.1em] text-ink/55"
+                role="status"
+                aria-live="polite"
+              >
+                Analyse en cours · Requesty · DeepSeek…
+              </p>
+            ) : null}
+            {analysisError ? (
+              <p className="rounded-sm border border-red bg-red/10 px-3 py-2 text-[12px] text-red">
+                {analysisError}
+              </p>
+            ) : null}
+            {analysis.meta.source ? (
+              <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink/45">
+                Source · {analysis.meta.source === "requesty" ? "Requesty (LLM)" : "Mock local"}
+              </p>
+            ) : null}
           </div>
         </Card>
+
+        {analysis.violations && analysis.violations.length > 0 ? (
+          <Card>
+            <CardHeader
+              title="Violations détectées"
+              more={`${analysis.violations.length} remontée${analysis.violations.length > 1 ? "s" : ""}`}
+            />
+            {analysis.summary ? (
+              <p className="mb-3 text-[12px] leading-snug text-ink/75">{analysis.summary}</p>
+            ) : null}
+            <ul className="flex flex-col gap-2">
+              {analysis.violations.map((violation, idx) => (
+                <ViolationRow key={`${violation.rule}-${idx}`} violation={violation} />
+              ))}
+            </ul>
+          </Card>
+        ) : analysis.meta.source === "requesty" && analysis.summary ? (
+          <Card>
+            <CardHeader title="Audit LLM" more="0 violation" />
+            <div className="flex items-start gap-3 rounded-md border border-green bg-green/10 p-3">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-green text-ink">
+                <Icon name="check" size={14} />
+              </span>
+              <p className="flex-1 text-[12px] leading-snug text-ink/80">{analysis.summary}</p>
+            </div>
+          </Card>
+        ) : null}
 
         <Card>
           <CardHeader title="Historique de validation" />
@@ -372,6 +455,29 @@ export function GuardianClient({ initial, brandRules }: GuardianClientProps) {
         </Card>
       </div>
     </div>
+  );
+}
+
+function ViolationRow({ violation }: { violation: BrandViolation }) {
+  const styles = VIOLATION_STYLES[violation.severity];
+  return (
+    <li className={cx("rounded-md border p-3", styles.border, styles.bg)}>
+      <div className="flex items-start gap-3">
+        <Badge tone={styles.badge}>{styles.label}</Badge>
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-ink/55">
+            Règle · {violation.rule || "brand"}
+          </p>
+          <p className="mt-1 text-[12px] leading-snug text-ink">{violation.description}</p>
+          {violation.suggestion ? (
+            <p className="mt-1 text-[12px] leading-snug text-ink/75">
+              <b>Suggestion · </b>
+              {violation.suggestion}
+            </p>
+          ) : null}
+        </div>
+      </div>
+    </li>
   );
 }
 
