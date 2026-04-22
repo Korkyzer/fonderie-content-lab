@@ -56,7 +56,69 @@ async function main() {
       aiScore: 82,
       brandScore: 90,
     },
-  ]);
+    {
+      title: "Carrousel : 5 raisons de choisir la Fonderie",
+      format: "Carrousel",
+      platform: "Instagram",
+      campaign: "Recrutement étudiants",
+      persona: "Parents",
+      status: "planned",
+      dueDate: "2026-05-10T17:30:00+02:00",
+      owner: "Laure Reymond",
+      aiScore: 89,
+      brandScore: 92,
+    },
+    {
+      title: "Behind-the-scenes atelier sérigraphie",
+      format: "Reel",
+      platform: "TikTok",
+      campaign: "Showcase étudiants",
+      persona: "Lycéens 16-20",
+      status: "planned",
+      dueDate: "2026-05-11T12:00:00+02:00",
+      owner: "Thomas L.",
+      aiScore: 91,
+      brandScore: 88,
+    },
+    {
+      title: "Teaser JPO — Compte à rebours",
+      format: "Reel",
+      platform: "Instagram",
+      campaign: "JPO Mai 2026",
+      persona: "Lycéens 16-20",
+      status: "planned",
+      dueDate: "2026-05-15T18:00:00+02:00",
+      owner: "Laure Reymond",
+      aiScore: 94,
+      brandScore: 95,
+    },
+    {
+      title: "Post LinkedIn alumni direction artistique",
+      format: "Post",
+      platform: "LinkedIn",
+      campaign: "Alumni",
+      persona: "Alumni",
+      status: "published",
+      dueDate: "2026-04-22T14:00:00+02:00",
+      publishedAt: "2026-04-22T15:30:00+02:00",
+      owner: "Laure Reymond",
+      aiScore: 90,
+      brandScore: 94,
+    },
+    {
+      title: "Story campus — micro-trottoir Puces Typo",
+      format: "Story",
+      platform: "Instagram",
+      campaign: "Showcase étudiants",
+      persona: "Lycéens 16-20",
+      status: "published",
+      dueDate: "2026-04-19T16:00:00+02:00",
+      publishedAt: "2026-04-19T17:00:00+02:00",
+      owner: "Thomas L.",
+      aiScore: 86,
+      brandScore: 88,
+    },
+  ]).run();
 
   db.insert(brandRules).values([
     {
@@ -83,42 +145,167 @@ async function main() {
       expectedValue: "Tutoiement",
       status: "active",
     },
-  ]);
+  ]).run();
 
   db.insert(kanbanCards).values([
     {
       columnId: "ideas",
-      title: "Teaser JPO sérigraphie : 3 secondes pour accrocher",
-      platform: "Instagram Reel",
-      persona: "Lycéens 16-20",
-      campaign: "JPO Mai 2026",
+      title: "Interview prof typographie sur le Colloque",
+      platform: "LinkedIn",
+      persona: "Alumni",
+      campaign: "Alumni",
       assignee: "Laure Reymond",
-      dueDate: "2026-05-03T12:00:00+02:00",
-      aiProgress: 24,
+      dueDate: "2026-05-02T10:00:00+02:00",
+      aiProgress: 12,
+    },
+    {
+      columnId: "ideas",
+      title: "Témoignage alumni Refika Dervišević",
+      platform: "Instagram Reel",
+      persona: "Alumni",
+      campaign: "Alumni",
+      assignee: "Thomas L.",
+      dueDate: "2026-05-03T11:00:00+02:00",
+      aiProgress: 8,
+    },
+    {
+      columnId: "ideas",
+      title: "Série « Une journée à l'atelier »",
+      platform: "TikTok",
+      persona: "Lycéens 16-20",
+      campaign: "Showcase étudiants",
+      assignee: "Laure Reymond",
+      dueDate: "2026-05-04T09:00:00+02:00",
+      aiProgress: 18,
+    },
+    {
+      columnId: "brief",
+      title: "Teaser Festival d'Annecy — workshops motion",
+      platform: "Instagram",
+      persona: "Entreprises partenaires",
+      campaign: "Partenariats",
+      assignee: "Thomas L.",
+      dueDate: "2026-05-06T14:00:00+02:00",
+      aiProgress: 34,
+    },
+    {
+      columnId: "brief",
+      title: "Post Parcoursup phase complémentaire",
+      platform: "Instagram",
+      persona: "Lycéens 16-20",
+      campaign: "Parcoursup",
+      assignee: "Laure Reymond",
+      dueDate: "2026-05-07T16:00:00+02:00",
+      aiProgress: 28,
     },
     {
       columnId: "production",
-      title: "Reel JPO Motion Design : variantes",
+      title: "Reel JPO — Motion Design (variantes)",
       platform: "Instagram Reel",
       persona: "Lycéens 16-20",
       campaign: "JPO Mai 2026",
       assignee: "Thomas L.",
       dueDate: "2026-05-10T15:00:00+02:00",
       aiProgress: 72,
+    },
+    {
+      columnId: "production",
+      title: "Carrousel 5 raisons CFI",
+      platform: "Instagram",
+      persona: "Parents",
+      campaign: "Recrutement étudiants",
+      assignee: "Laure Reymond",
+      dueDate: "2026-05-11T12:00:00+02:00",
+      aiProgress: 58,
+    },
+    {
+      columnId: "production",
+      title: "Atelier sérigraphie BTS1",
+      platform: "TikTok",
+      persona: "Lycéens 16-20",
+      campaign: "Showcase étudiants",
+      assignee: "Thomas L.",
+      dueDate: "2026-05-12T17:00:00+02:00",
+      aiProgress: 44,
+    },
+    {
+      columnId: "review",
+      title: "Carrousel Motion Design · 5 slides",
+      platform: "Instagram",
+      persona: "Lycéens 16-20",
+      campaign: "JPO Mai 2026",
+      assignee: "Thomas L.",
+      dueDate: "2026-05-14T10:00:00+02:00",
+      aiProgress: 100,
       brandScore: 89,
     },
     {
-      columnId: "validated",
-      title: "Carrousel BTS animation : coulisses atelier",
+      columnId: "review",
+      title: "Photo campus — session lumière",
       platform: "Instagram",
       persona: "Parents",
-      campaign: "Showcase étudiants",
+      campaign: "Recrutement étudiants",
+      assignee: "Laure Reymond",
+      dueDate: "2026-05-15T09:30:00+02:00",
+      aiProgress: 100,
+      brandScore: 86,
+    },
+    {
+      columnId: "validated",
+      title: "Portrait alumni Refika",
+      platform: "LinkedIn",
+      persona: "Alumni",
+      campaign: "Alumni",
       assignee: "Laure Reymond",
       dueDate: "2026-05-18T11:30:00+02:00",
       aiProgress: 100,
+      brandScore: 94,
+    },
+    {
+      columnId: "validated",
+      title: "Brief Erasmus+ printemps",
+      platform: "Email",
+      persona: "Entreprises partenaires",
+      campaign: "Partenariats",
+      assignee: "Thomas L.",
+      dueDate: "2026-05-19T14:00:00+02:00",
+      aiProgress: 100,
+      brandScore: 91,
+    },
+    {
+      columnId: "validated",
+      title: "Story Portes Ouvertes J-10",
+      platform: "Instagram Reel",
+      persona: "Lycéens 16-20",
+      campaign: "JPO Mai 2026",
+      assignee: "Laure Reymond",
+      dueDate: "2026-05-20T18:00:00+02:00",
+      aiProgress: 100,
       brandScore: 97,
     },
-  ]);
+    {
+      columnId: "published",
+      title: "Reel workshop DCDG · vues 42k",
+      platform: "Instagram Reel",
+      persona: "Lycéens 16-20",
+      campaign: "Showcase étudiants",
+      assignee: "Thomas L.",
+      dueDate: "2026-04-28T17:00:00+02:00",
+      aiProgress: 100,
+      brandScore: 93,
+    },
+    {
+      columnId: "published",
+      title: "Carrousel Puces Typo",
+      platform: "Instagram",
+      persona: "Entreprises partenaires",
+      campaign: "Partenariats",
+      assignee: "Laure Reymond",
+      dueDate: "2026-04-25T10:00:00+02:00",
+      aiProgress: 100,
+      brandScore: 90,
+    },
+  ]).run();
 
   db.insert(calendarEvents).values([
     {
@@ -170,7 +357,7 @@ async function main() {
       location: "Campus CFI",
       aiSuggestion: "Ajouter 2 contenus alumni pour équilibrer le mois.",
     },
-  ]);
+  ]).run();
 
   db.insert(competitors).values([
     {
@@ -209,7 +396,7 @@ async function main() {
       positioning: "Ton événementiel et rythme soutenu sur les stories",
       opportunity: "Monter une série stories Parcoursup plus claire et plus pédagogique.",
     },
-  ]);
+  ]).run();
 
   db.insert(prompts).values([
     {
@@ -302,7 +489,7 @@ async function main() {
       body: "Prépare un appel à témoignages pour la promotion {promotion} à diffuser sur {canal}.",
       author: "Laure R.",
     },
-  ]);
+  ]).run();
 
   db.insert(personas).values([
     {
@@ -345,7 +532,7 @@ async function main() {
       vocabularyNo: "corporate froid, distance",
       bestHour: "12:15",
     },
-  ]);
+  ]).run();
 }
 
 main()
