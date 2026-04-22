@@ -4,9 +4,10 @@ import { useMemo, useState, useTransition } from "react";
 
 import type {
   BrandAnalysisResponse,
+  BrandTone,
   GuardianCheck,
   GuardianCheckState,
-} from "@/app/api/brand-analysis/route";
+} from "@/lib/brand-guardian-mock";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -19,7 +20,7 @@ type BrandRuleRow = {
   category: string;
   name: string;
   description: string;
-  severity: string;
+  severity: "high" | "medium" | "low" | string;
   expectedValue: string;
 };
 
@@ -55,7 +56,7 @@ const CHECK_STATE_STYLES: Record<
 export function GuardianClient({ initial, brandRules }: GuardianClientProps) {
   const [analysis, setAnalysis] = useState<BrandAnalysisResponse>(initial);
   const [draft, setDraft] = useState(
-    "Viens créer ton futur à la Fonderie — JPO 17 mai, campus Bagnolet. Motion design, sérigraphie, DA.",
+    "Viens créer ton futur à la Fonderie · JPO 17 mai, campus Bagnolet. Motion design, sérigraphie, DA.",
   );
   const [fixedSlides, setFixedSlides] = useState<Set<number>>(new Set());
   const [isPending, startTransition] = useTransition();
@@ -153,7 +154,7 @@ export function GuardianClient({ initial, brandRules }: GuardianClientProps) {
               </p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {analysis.tags.map((t) => (
-                  <Badge key={t.label} tone={t.tone as never}>
+                  <Badge key={t.label} tone={t.tone}>
                     {t.label}
                   </Badge>
                 ))}
@@ -205,15 +206,15 @@ export function GuardianClient({ initial, brandRules }: GuardianClientProps) {
           <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
             {analysis.slides.map((slide, idx) => {
               const fixed = fixedSlides.has(idx);
-              const background = fixed && slide.tone === "warning"
-                ? "var(--yellow)"
-                : slide.background;
+              const background =
+                fixed && slide.tone === "warning" ? "var(--yellow)" : slide.background;
+              const tone: BrandTone = slide.tone ?? "ink";
               return (
                 <div
                   key={slide.step}
                   className={cx(
                     "relative flex min-h-[110px] flex-col justify-between rounded-md border border-ink/10 p-3",
-                    slide.tone === "ink" ? "text-cream" : "text-ink",
+                    tone === "ink" ? "text-cream" : "text-ink",
                   )}
                   style={{ backgroundColor: background }}
                 >

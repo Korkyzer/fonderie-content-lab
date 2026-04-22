@@ -2,19 +2,20 @@
 
 import { useMemo, useState, useTransition } from "react";
 
-import type {
-  BackstageStep,
-  GenerateResponse,
-  GeneratorVariant,
-} from "@/app/api/generate/route";
 import { Badge } from "@/components/ui/badge";
+import type { BadgeTone } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Pill } from "@/components/ui/pill";
+import type {
+  BackstageStep,
+  GenerateResponse,
+  GeneratorVariant,
+} from "@/lib/generator-mock";
 import { cx } from "@/lib/utils";
 
-type PersonaOption = { name: string; tone: string };
+type PersonaOption = { name: string; tone: BadgeTone };
 
 type DurationOption = "15s" | "30s" | "60s" | "90s";
 
@@ -108,10 +109,11 @@ export function GeneratorClient({ personas, initial }: GeneratorClientProps) {
           <div className="flex flex-col gap-3.5">
             <Field label="Persona">
               <SelectChip
-                leading={<Badge tone={personaTone as never}>{persona}</Badge>}
+                leading={<Badge tone={personaTone}>{persona}</Badge>}
                 options={personas.map((p) => p.name)}
                 value={persona}
                 onChange={setPersona}
+                ariaLabel="Persona"
               />
             </Field>
 
@@ -129,6 +131,7 @@ export function GeneratorClient({ personas, initial }: GeneratorClientProps) {
                   const match = PLATFORMS.find((p) => p.label === label);
                   if (match) setPlatform(match.id);
                 }}
+                ariaLabel="Plateforme"
               />
             </Field>
 
@@ -138,6 +141,7 @@ export function GeneratorClient({ personas, initial }: GeneratorClientProps) {
                 options={VISUAL_STYLES}
                 value={visualStyle}
                 onChange={setVisualStyle}
+                ariaLabel="Style visuel"
               />
             </Field>
 
@@ -147,6 +151,7 @@ export function GeneratorClient({ personas, initial }: GeneratorClientProps) {
                 options={TONES}
                 value={tone}
                 onChange={setTone}
+                ariaLabel="Ton éditorial"
               />
             </Field>
 
@@ -156,6 +161,7 @@ export function GeneratorClient({ personas, initial }: GeneratorClientProps) {
                 options={FORMATIONS}
                 value={formation}
                 onChange={setFormation}
+                ariaLabel="Formation en vedette"
               />
             </Field>
 
@@ -280,7 +286,7 @@ export function GeneratorClient({ personas, initial }: GeneratorClientProps) {
                     Titre
                   </p>
                   <p className="mt-1 text-b2 font-display uppercase">
-                    Reel JPO · {formation} — variante {variant.id}
+                    Reel JPO · {formation} · variante {variant.id}
                   </p>
                 </div>
 
@@ -367,12 +373,15 @@ export function GeneratorClient({ personas, initial }: GeneratorClientProps) {
           <CardHeader title="Décliner ce brief" />
           <ul className="flex flex-col gap-1.5">
             {DECLINATIONS.map((label) => (
-              <li
-                key={label}
-                className="flex cursor-pointer items-center justify-between rounded-sm bg-white px-3 py-2.5 text-[12px] transition-colors hover:bg-cream"
-              >
-                <span>{label}</span>
-                <Icon name="plus" size={14} />
+              <li key={label}>
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between rounded-sm bg-white px-3 py-2.5 text-left text-[12px] transition-colors hover:bg-cream focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple"
+                  aria-label={`Créer ${label}`}
+                >
+                  <span>{label}</span>
+                  <Icon name="plus" size={14} />
+                </button>
               </li>
             ))}
           </ul>
@@ -420,15 +429,22 @@ type SelectChipProps = {
   options: string[];
   value: string;
   onChange: (value: string) => void;
+  ariaLabel: string;
 };
 
-function SelectChip({ leading, options, value, onChange }: SelectChipProps) {
+function SelectChip({
+  leading,
+  options,
+  value,
+  onChange,
+  ariaLabel,
+}: SelectChipProps) {
   return (
     <div className="relative flex cursor-pointer items-center justify-between gap-2 rounded-sm border border-ink/15 bg-white px-3 py-2 text-[13px] font-medium transition-colors hover:border-ink">
       <span className="min-w-0 truncate">{leading}</span>
       <Icon name="chevron-down" size={14} />
       <select
-        aria-label="Sélection"
+        aria-label={ariaLabel}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="absolute inset-0 cursor-pointer opacity-0"
