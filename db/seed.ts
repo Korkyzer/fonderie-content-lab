@@ -128,7 +128,7 @@ async function main() {
     {
       category: "Palette",
       name: "Jaune institutionnel",
-      description: "Utiliser #FFED00 et refuser toute dérive off-brand sur les slides CTA.",
+      description: "Utiliser #FFED00 et refuser toute dérive off-brand sur les slides CTA et admissions.",
       severity: "high",
       expectedValue: "#FFED00",
       status: "active",
@@ -142,11 +142,27 @@ async function main() {
       status: "active",
     },
     {
+      category: "Conformité",
+      name: "Mentions formation",
+      description: "Toute promesse formation ou financement garde les mentions Qualiopi et RNCP utiles.",
+      severity: "high",
+      expectedValue: "Mentions présentes",
+      status: "active",
+    },
+    {
       category: "Ton",
       name: "Tutoiement pour les lycéens",
       description: "Employer un ton direct, inspirant et accessible sur les contenus recrutement.",
       severity: "medium",
       expectedValue: "Tutoiement",
+      status: "active",
+    },
+    {
+      category: "CTA",
+      name: "Repères JPO",
+      description: "Les contenus JPO citent la date, le campus et le bénéfice visiteur dès le CTA final.",
+      severity: "medium",
+      expectedValue: "Date + campus + bénéfice",
       status: "active",
     },
   ]).run();

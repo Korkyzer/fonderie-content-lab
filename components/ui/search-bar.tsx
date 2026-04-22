@@ -33,10 +33,10 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
         <input
           ref={ref}
           type="search"
+          aria-label={ariaLabel ?? "Rechercher"}
           placeholder="Rechercher contenu, brief, persona…"
           className="flex-1 bg-transparent outline-none placeholder:text-ink/50"
           {...rest}
-          aria-label={ariaLabel}
         />
         {shortcut ? (
           <kbd className="rounded-[3px] bg-ink/8 px-1.5 py-0.5 font-mono text-[10px] text-ink/70">
