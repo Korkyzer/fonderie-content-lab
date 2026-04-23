@@ -19,6 +19,8 @@ import { requirePermission } from "@/lib/auth/session";
 export const runtime = "nodejs";
 
 const BRAND_ANALYSIS_MODEL = "deepseek/deepseek-chat";
+const DEFAULT_BRAND_ANALYSIS_DRAFT =
+  "Viens créer ton futur à la Fonderie · JPO 17 mai, campus Bagnolet. Motion design, sérigraphie, DA.";
 
 export async function POST(request: Request) {
   const access = await requirePermission("review.comment");
@@ -32,7 +34,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const content = body.content?.trim() || mock.meta.format;
+    const content = body.content?.trim() || DEFAULT_BRAND_ANALYSIS_DRAFT;
     const format = body.format?.trim() || mock.meta.format;
     const messages = buildBrandAnalysisMessages(content, format);
     const { text } = await requestyComplete(messages, {

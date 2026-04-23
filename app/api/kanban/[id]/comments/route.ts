@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { asc, eq } from "drizzle-orm";
 
 import { db } from "@/db/index";
-import { kanbanComments } from "@/db/schema";
+import { kanbanCards, kanbanComments } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +30,15 @@ export async function POST(request: Request, { params }: Params) {
   const cardId = Number(id);
   if (!Number.isFinite(cardId)) {
     return NextResponse.json({ error: "Identifiant invalide." }, { status: 400 });
+  }
+
+  const card = db
+    .select({ id: kanbanCards.id })
+    .from(kanbanCards)
+    .where(eq(kanbanCards.id, cardId))
+    .get();
+  if (!card) {
+    return NextResponse.json({ error: "Carte introuvable." }, { status: 404 });
   }
 
   let body: Partial<{ author: string; content: string }>;

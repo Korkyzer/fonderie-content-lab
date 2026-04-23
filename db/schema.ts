@@ -180,7 +180,6 @@ export const personas = sqliteTable("personas", {
   sampleCopy: text("sample_copy").notNull(),
 });
 
-<<<<<<< HEAD
 export const templates = sqliteTable("templates", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   slug: text("slug").notNull(),

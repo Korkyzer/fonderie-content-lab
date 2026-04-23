@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { SeoSuggestion } from "@/lib/seo";
 
 type SeoAssistantProps = {
@@ -19,8 +19,12 @@ export function SeoAssistant({
   const [data, setData] = useState<SeoSuggestion | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const requestIdRef = useRef(0);
 
   async function runAnalysis() {
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+
     try {
       setLoading(true);
       setError(null);
@@ -33,11 +37,17 @@ export function SeoAssistant({
       if (!response.ok) {
         throw new Error("error" in json ? json.error : "Analyse SEO indisponible");
       }
-      setData(json as SeoSuggestion);
+      if (requestIdRef.current === requestId) {
+        setData(json as SeoSuggestion);
+      }
     } catch (issue) {
-      setError(issue instanceof Error ? issue.message : "Analyse SEO indisponible");
+      if (requestIdRef.current === requestId) {
+        setError(issue instanceof Error ? issue.message : "Analyse SEO indisponible");
+      }
     } finally {
-      setLoading(false);
+      if (requestIdRef.current === requestId) {
+        setLoading(false);
+      }
     }
   }
 

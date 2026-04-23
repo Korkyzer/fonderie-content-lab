@@ -85,6 +85,8 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
   }
 
   async function handleSave() {
+    if (saveState === "saving") return;
+
     try {
       setSaveState("saving");
       setSaveMessage("");
@@ -371,7 +373,12 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
               </section>
 
               <div className="flex flex-wrap gap-3">
-                <button type="button" className="button-primary" onClick={() => void handleSave()}>
+                <button
+                  type="button"
+                  className="button-primary"
+                  onClick={() => void handleSave()}
+                  disabled={saveState === "saving"}
+                >
                   {saveState === "saving" ? "Sauvegarde..." : "Sauvegarder en DB"}
                 </button>
                 <button type="button" className="button-secondary" onClick={exportHtml}>

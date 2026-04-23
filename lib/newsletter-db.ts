@@ -1,6 +1,7 @@
 import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { randomUUID } from "node:crypto";
+import { tmpdir } from "node:os";
 import { DatabaseSync } from "node:sqlite";
 import {
   buildNewsletterHtml,
@@ -8,7 +9,10 @@ import {
   type StoredNewsletterDraft,
 } from "@/lib/newsletter";
 
-const DB_PATH = join(process.cwd(), "db", "fonderie.db");
+const DB_PATH = join(
+  process.env.NEWSLETTER_DB_DIR?.trim() || join(tmpdir(), "fonderie-content-lab"),
+  "newsletter.db",
+);
 
 let database: DatabaseSync | null = null;
 

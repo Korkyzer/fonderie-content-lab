@@ -97,15 +97,19 @@ export function AutoPublishView() {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setSettings(loadJSON<SettingsMap>(SETTINGS_STORAGE_KEY, DEFAULT_SETTINGS));
-    setQueue(loadJSON<QueueItem[]>(QUEUE_STORAGE_KEY, DEFAULT_QUEUE));
-    setPublishStatus(
-      loadJSON<Record<string, ContentPublishStatus>>(
-        PUBLISH_STATUS_STORAGE_KEY,
-        {},
-      ),
-    );
-    setHydrated(true);
+    const frame = window.requestAnimationFrame(() => {
+      setSettings(loadJSON<SettingsMap>(SETTINGS_STORAGE_KEY, DEFAULT_SETTINGS));
+      setQueue(loadJSON<QueueItem[]>(QUEUE_STORAGE_KEY, DEFAULT_QUEUE));
+      setPublishStatus(
+        loadJSON<Record<string, ContentPublishStatus>>(
+          PUBLISH_STATUS_STORAGE_KEY,
+          {},
+        ),
+      );
+      setHydrated(true);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {

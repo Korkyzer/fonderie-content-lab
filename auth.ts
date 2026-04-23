@@ -5,7 +5,7 @@ import { verifyPassword } from "@/lib/auth/password";
 import { getUserByEmail } from "@/lib/auth/users";
 
 export const { handlers, auth } = NextAuth({
-  secret: process.env.AUTH_SECRET ?? "fonderie-content-lab-local-secret",
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   providers: [

@@ -1,4 +1,3 @@
-import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 import { db } from "@/db/index";
@@ -88,8 +87,8 @@ async function generatePayload(summaries: CompetitorSummary[]): Promise<{
 function persistPayload(payload: LLMCompetitiveRefresh, source: string) {
   const now = new Date().toISOString();
 
+  db.delete(competitorInsights).run();
   for (const insight of payload.insights) {
-    db.delete(competitorInsights).where(eq(competitorInsights.handle, insight.handle)).run();
     db.insert(competitorInsights).values({
       handle: insight.handle,
       summary: insight.summary,

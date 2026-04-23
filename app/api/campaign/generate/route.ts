@@ -51,12 +51,20 @@ function normalizeRequest(payload: unknown): CampaignGenerateRequest | { error: 
   const platformsInput = readStringList(payload, "platforms");
   const platforms = platformsInput.filter((p) => VALID_PLATFORMS.includes(p));
 
+  if (audiences.length === 0) {
+    return { error: "Sélectionnez au moins une audience." };
+  }
+
+  if (platforms.length === 0) {
+    return { error: "Sélectionnez au moins une plateforme." };
+  }
+
   return {
     objective,
     formation: formationRaw || undefined,
     eventName: eventRaw || undefined,
-    audiences: audiences.length > 0 ? audiences : ["Lycéens 16-20"],
-    platforms: platforms.length > 0 ? platforms : ["Instagram Reel", "LinkedIn", "Email"],
+    audiences,
+    platforms,
   };
 }
 

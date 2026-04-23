@@ -129,6 +129,19 @@ export function CampaignClient({ templates, recentKits }: Props) {
     }
   }
 
+  function exportKit() {
+    if (!kit) return;
+    const blob = new Blob([JSON.stringify(kit, null, 2)], {
+      type: "application/json;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `${kit.slug}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
   const itemsByPlatform = useMemo(() => {
     if (!kit) return new Map<string, CampaignKit["items"]>();
     const map = new Map<string, CampaignKit["items"]>();
@@ -267,13 +280,14 @@ export function CampaignClient({ templates, recentKits }: Props) {
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Link
-                href={`/export?kit=${encodeURIComponent(kit.slug)}`}
+              <button
+                type="button"
+                onClick={exportKit}
                 className="inline-flex items-center gap-2 rounded-sm border border-ink bg-purple px-3 py-2 text-[12px] font-bold text-ink hover:bg-purple/90"
               >
                 <Icon name="bookmark" size={14} />
                 Exporter le kit
-              </Link>
+              </button>
             </div>
           </header>
 

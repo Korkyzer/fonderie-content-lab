@@ -232,16 +232,23 @@ export function CalendarView({
   const [showRecurrenceForm, setShowRecurrenceForm] = useState(false);
 
   useEffect(() => {
-    setFilters(loadJSON<Filters>(FILTERS_STORAGE_KEY, DEFAULT_FILTERS));
-    const storedView = typeof window !== "undefined"
-      ? (window.localStorage.getItem(VIEW_STORAGE_KEY) as ViewMode | null)
-      : null;
-    if (storedView === "week" || storedView === "month") setView(storedView);
-    setRecurrences(loadList<RecurrenceRule>(RECURRENCE_STORAGE_KEY, DEFAULT_RECURRENCES));
-    setPublishStatus(
-      loadJSON<Record<string, ContentPublishStatus>>(PUBLISH_STATUS_STORAGE_KEY, {}),
-    );
-    setHydrated(true);
+    const frame = window.requestAnimationFrame(() => {
+      setFilters(loadJSON<Filters>(FILTERS_STORAGE_KEY, DEFAULT_FILTERS));
+      const storedView = window.localStorage.getItem(VIEW_STORAGE_KEY) as
+        | ViewMode
+        | null;
+      if (storedView === "week" || storedView === "month") setView(storedView);
+      setRecurrences(loadList<RecurrenceRule>(RECURRENCE_STORAGE_KEY, DEFAULT_RECURRENCES));
+      setPublishStatus(
+        loadJSON<Record<string, ContentPublishStatus>>(
+          PUBLISH_STATUS_STORAGE_KEY,
+          {},
+        ),
+      );
+      setHydrated(true);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {

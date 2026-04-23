@@ -101,6 +101,7 @@ export async function publishContent(
   channel: PublishChannelKey,
   _payload: Record<string, unknown>,
 ): Promise<PublishResult> {
+  void _payload;
   return {
     ok: false,
     channel,

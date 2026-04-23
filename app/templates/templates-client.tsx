@@ -261,7 +261,7 @@ export function TemplatesClient({ initialTemplates }: Props) {
     }
   }
 
-  function useInGenerator(template: Template) {
+  function openInGenerator(template: Template) {
     const params = new URLSearchParams({
       template: template.slug,
       title: template.name,
@@ -485,7 +485,7 @@ export function TemplatesClient({ initialTemplates }: Props) {
               <footer className="flex flex-wrap gap-2">
                 <Button
                   variant="primary"
-                  onClick={() => useInGenerator(open)}
+                  onClick={() => openInGenerator(open)}
                   disabled={busy}
                 >
                   <Icon name="sparkle" size={14} /> Utiliser ce template
