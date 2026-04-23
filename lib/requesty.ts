@@ -29,6 +29,8 @@ export async function requestyComplete(
       "content-type": "application/json",
       authorization: `Bearer ${apiKey}`,
     },
+    cache: "no-store",
+    signal: AbortSignal.timeout(15_000),
     body: JSON.stringify({
       model: options.model ?? "deepseek/deepseek-chat",
       messages,
@@ -42,7 +44,7 @@ export async function requestyComplete(
   });
 
   if (!response.ok) {
-    throw new Error(`Requesty HTTP ${response.status}`);
+    throw new Error(await buildRequestyError(response));
   }
 
   const json = (await response.json()) as {
@@ -52,4 +54,13 @@ export async function requestyComplete(
   return {
     text: json.choices?.[0]?.message?.content ?? "",
   };
+}
+
+async function buildRequestyError(response: Response): Promise<string> {
+  const body = await response.text();
+  const detail = body.trim().slice(0, 240);
+
+  return detail.length > 0
+    ? `Requesty HTTP ${response.status}: ${detail}`
+    : `Requesty HTTP ${response.status}`;
 }

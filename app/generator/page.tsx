@@ -6,7 +6,7 @@ type PageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function Home({ searchParams }: PageProps) {
+export default async function GeneratorPage({ searchParams }: PageProps) {
   const params = searchParams ? await searchParams : undefined;
   const { autoRun, initialInput } = resolveGeneratorPrefill(params);
 

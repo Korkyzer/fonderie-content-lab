@@ -1,7 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { Input } from "@/components/ui/input";
+import { Panel } from "@/components/ui/panel";
+import { SectionHeading } from "@/components/ui/section-heading";
+import { Tag } from "@/components/ui/tag";
+import { Textarea } from "@/components/ui/textarea";
 import {
   NEWSLETTER_SNIPPETS,
   NEWSLETTER_TEMPLATES,
@@ -111,7 +117,9 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
         return next.slice(0, 12);
       });
       setSaveState("saved");
-      setSaveMessage(`Brouillon enregistré le ${new Date(json.draft.updatedAt).toLocaleString("fr-FR")}`);
+      setSaveMessage(
+        `Brouillon enregistré le ${new Date(json.draft.updatedAt).toLocaleString("fr-FR")}`,
+      );
     } catch (issue) {
       setSaveState("error");
       setSaveMessage(issue instanceof Error ? issue.message : "Sauvegarde impossible");
@@ -129,35 +137,36 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
   }
 
   return (
-    <main className="shell px-5 py-5 md:px-8 md:py-8">
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(420px,0.95fr)]">
-        <section className="panel p-6 md:p-8">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/8 pb-6">
-            <div>
-              <p className="eyebrow mb-2">Newsletter builder</p>
-              <h1 className="font-heading text-4xl leading-tight md:text-6xl">
-                Assembler, prévisualiser et exporter les newsletters CFI.
-              </h1>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Link href="/" className="pill">
-                Retour au générateur
-              </Link>
-              <span className="pill">Desktop + mobile</span>
-              <span className="pill">Export HTML</span>
-            </div>
-          </div>
+    <div className="space-y-6">
+      <SectionHeading
+        eyebrow="Newsletter builder"
+        title="Assembler, prévisualiser et exporter les newsletters CFI"
+        description="Les brouillons sont enregistrés côté serveur, réinjectables dans l'éditeur et prévisualisés sur un rendu desktop et mobile avant export HTML."
+      />
 
-          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
-            <div className="space-y-5">
-              <section className="newsletter-card p-5">
-                <div className="mb-4 flex items-center justify-between gap-4">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(420px,0.95fr)]">
+        <section className="space-y-5">
+          <Panel className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-2">
+                <Tag tone="caramel">Templates CFI</Tag>
+                <Tag tone="outline">Desktop + mobile</Tag>
+                <Tag tone={saveState === "saved" ? "green" : "outline"}>Export HTML</Tag>
+              </div>
+              <Button
+                variant="light"
+                size="sm"
+                onClick={addSection}
+                icon={<Icon name="plus" size={12} />}
+              >
+                Ajouter une section
+              </Button>
+            </div>
+
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+              <div className="space-y-5">
+                <Panel className="space-y-3 bg-white/72">
                   <p className="text-sm font-semibold">Templates CFI</p>
-                  <button type="button" className="button-secondary" onClick={addSection}>
-                    Ajouter une section
-                  </button>
-                </div>
-                <div className="space-y-3">
                   {NEWSLETTER_TEMPLATES.map((template) => (
                     <button
                       key={template.key}
@@ -170,15 +179,17 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                       }`}
                     >
                       <div className="text-sm font-semibold">{template.name}</div>
-                      <div className="mt-1 text-sm leading-6 text-slate-700">{template.description}</div>
+                      <div className="mt-1 text-sm leading-6 text-slate-700">
+                        {template.description}
+                      </div>
                     </button>
                   ))}
-                </div>
-              </section>
+                </Panel>
 
-              <section className="newsletter-card p-5">
-                <p className="mb-4 text-sm font-semibold">Pré-remplissage depuis les contenus existants</p>
-                <div className="space-y-3">
+                <Panel className="space-y-3 bg-white/72">
+                  <p className="text-sm font-semibold">
+                    Pré-remplissage depuis les contenus existants
+                  </p>
                   {NEWSLETTER_SNIPPETS.map((snippet) => (
                     <button
                       key={snippet.title}
@@ -187,17 +198,22 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                       onClick={() => injectSnippet(snippet.title, snippet.body)}
                     >
                       <div className="text-sm font-semibold">{snippet.title}</div>
-                      <div className="mt-1 text-sm leading-6 text-slate-700">{snippet.body}</div>
+                      <div className="mt-1 text-sm leading-6 text-slate-700">
+                        {snippet.body}
+                      </div>
                     </button>
                   ))}
-                </div>
-              </section>
+                </Panel>
 
-              <section className="newsletter-card p-5">
-                <p className="mb-4 text-sm font-semibold">Brouillons enregistrés</p>
-                <div className="space-y-3">
+                <Panel className="space-y-3 bg-white/72">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold">Brouillons enregistrés</p>
+                    <Tag tone="outline">{drafts.length}</Tag>
+                  </div>
                   {drafts.length === 0 ? (
-                    <p className="text-sm text-slate-600">Aucun brouillon enregistré pour le moment.</p>
+                    <p className="text-sm text-slate-600">
+                      Aucun brouillon enregistré pour le moment.
+                    </p>
                   ) : (
                     drafts.map((draft) => (
                       <button
@@ -219,16 +235,14 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                       </button>
                     ))
                   )}
-                </div>
-              </section>
-            </div>
+                </Panel>
+              </div>
 
-            <div className="space-y-5">
-              <section className="newsletter-card p-5">
-                <p className="mb-4 text-sm font-semibold">En-tête</p>
-                <div className="grid gap-4">
-                  <input
-                    className="field"
+              <div className="space-y-5">
+                <Panel className="space-y-4 bg-white/72">
+                  <p className="text-sm font-semibold">En-tête</p>
+                  <Input
+                    label="Eyebrow"
                     value={payload.header.eyebrow}
                     onChange={(event) =>
                       setPayload((current) => ({
@@ -236,10 +250,10 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                         header: { ...current.header, eyebrow: event.target.value },
                       }))
                     }
-                    placeholder="Eyebrow"
+                    placeholder="Admissions CFI"
                   />
-                  <input
-                    className="field"
+                  <Input
+                    label="Titre"
                     value={payload.header.title}
                     onChange={(event) =>
                       setPayload((current) => ({
@@ -247,10 +261,10 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                         header: { ...current.header, title: event.target.value },
                       }))
                     }
-                    placeholder="Titre"
+                    placeholder="Titre principal"
                   />
-                  <textarea
-                    className="field min-h-28"
+                  <Textarea
+                    label="Introduction"
                     value={payload.header.intro}
                     onChange={(event) =>
                       setPayload((current) => ({
@@ -260,69 +274,69 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                     }
                     placeholder="Introduction"
                   />
-                </div>
-              </section>
+                </Panel>
 
-              <section className="newsletter-card p-5">
-                <div className="mb-4 flex items-center justify-between gap-4">
-                  <p className="text-sm font-semibold">Sections éditables</p>
-                  <span className="pill">{payload.sections.length} modules</span>
-                </div>
-                <div className="space-y-4">
-                  {payload.sections.map((section) => (
-                    <div key={section.id} className="rounded-[22px] border border-black/8 bg-white/70 p-4">
-                      <div className="grid gap-3">
-                        <input
-                          className="field"
-                          value={section.eyebrow}
-                          onChange={(event) =>
-                            patchSection(section.id, { eyebrow: event.target.value })
-                          }
-                          placeholder="Sur-titre"
-                        />
-                        <input
-                          className="field"
-                          value={section.title}
-                          onChange={(event) =>
-                            patchSection(section.id, { title: event.target.value })
-                          }
-                          placeholder="Titre de section"
-                        />
-                        <textarea
-                          className="field min-h-28"
-                          value={section.body}
-                          onChange={(event) =>
-                            patchSection(section.id, { body: event.target.value })
-                          }
-                          placeholder="Contenu"
-                        />
-                        <input
-                          className="field"
-                          value={section.highlight}
-                          onChange={(event) =>
-                            patchSection(section.id, { highlight: event.target.value })
-                          }
-                          placeholder="Encadré / preuve"
-                        />
-                        <button
-                          type="button"
-                          className="button-secondary"
-                          onClick={() => removeSection(section.id)}
-                        >
-                          Supprimer la section
-                        </button>
+                <Panel className="space-y-4 bg-white/72">
+                  <div className="flex items-center justify-between gap-4">
+                    <p className="text-sm font-semibold">Sections éditables</p>
+                    <Tag tone="outline">{payload.sections.length} modules</Tag>
+                  </div>
+                  <div className="space-y-4">
+                    {payload.sections.map((section) => (
+                      <div
+                        key={section.id}
+                        className="rounded-[22px] border border-black/8 bg-white/70 p-4"
+                      >
+                        <div className="grid gap-3">
+                          <Input
+                            label="Sur-titre"
+                            value={section.eyebrow}
+                            onChange={(event) =>
+                              patchSection(section.id, { eyebrow: event.target.value })
+                            }
+                            placeholder="Sur-titre"
+                          />
+                          <Input
+                            label="Titre de section"
+                            value={section.title}
+                            onChange={(event) =>
+                              patchSection(section.id, { title: event.target.value })
+                            }
+                            placeholder="Titre de section"
+                          />
+                          <Textarea
+                            label="Contenu"
+                            value={section.body}
+                            onChange={(event) =>
+                              patchSection(section.id, { body: event.target.value })
+                            }
+                            placeholder="Contenu"
+                          />
+                          <Input
+                            label="Encadré / preuve"
+                            value={section.highlight}
+                            onChange={(event) =>
+                              patchSection(section.id, { highlight: event.target.value })
+                            }
+                            placeholder="Encadré / preuve"
+                          />
+                          <Button
+                            variant="light"
+                            onClick={() => removeSection(section.id)}
+                          >
+                            Supprimer la section
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
+                    ))}
+                  </div>
+                </Panel>
 
-              <section className="grid gap-5 md:grid-cols-2">
-                <div className="newsletter-card p-5">
-                  <p className="mb-4 text-sm font-semibold">Call-to-action</p>
-                  <div className="grid gap-3">
-                    <input
-                      className="field"
+                <div className="grid gap-5 md:grid-cols-2">
+                  <Panel className="space-y-3 bg-white/72">
+                    <p className="text-sm font-semibold">Call-to-action</p>
+                    <Input
+                      label="Label CTA"
                       value={payload.cta.label}
                       onChange={(event) =>
                         setPayload((current) => ({
@@ -331,8 +345,8 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                         }))
                       }
                     />
-                    <input
-                      className="field"
+                    <Input
+                      label="URL CTA"
                       value={payload.cta.url}
                       onChange={(event) =>
                         setPayload((current) => ({
@@ -341,13 +355,12 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                         }))
                       }
                     />
-                  </div>
-                </div>
-                <div className="newsletter-card p-5">
-                  <p className="mb-4 text-sm font-semibold">Footer</p>
-                  <div className="grid gap-3">
-                    <textarea
-                      className="field min-h-28"
+                  </Panel>
+
+                  <Panel className="space-y-3 bg-white/72">
+                    <p className="text-sm font-semibold">Footer</p>
+                    <Textarea
+                      label="Note"
                       value={payload.footer.note}
                       onChange={(event) =>
                         setPayload((current) => ({
@@ -356,8 +369,8 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                         }))
                       }
                     />
-                    <input
-                      className="field"
+                    <Input
+                      label="Signature"
                       value={payload.footer.signature}
                       onChange={(event) =>
                         setPayload((current) => ({
@@ -366,54 +379,62 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                         }))
                       }
                     />
-                  </div>
+                  </Panel>
                 </div>
-              </section>
 
-              <div className="flex flex-wrap gap-3">
-                <button type="button" className="button-primary" onClick={() => void handleSave()}>
-                  {saveState === "saving" ? "Sauvegarde..." : "Sauvegarder en DB"}
-                </button>
-                <button type="button" className="button-secondary" onClick={exportHtml}>
-                  Exporter en HTML
-                </button>
-                <span className="pill">
-                  {saveMessage || "Le brouillon est prêt pour Brevo ou Mailchimp."}
-                </span>
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    onClick={() => void handleSave()}
+                    disabled={saveState === "saving"}
+                    icon={<Icon name="sparkle" size={12} />}
+                  >
+                    {saveState === "saving" ? "Sauvegarde..." : "Sauvegarder en DB"}
+                  </Button>
+                  <Button variant="light" onClick={exportHtml}>
+                    Exporter en HTML
+                  </Button>
+                  <span aria-live="polite" className="pill">
+                    {saveMessage || "Le brouillon est prêt pour Brevo ou Mailchimp."}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
+          </Panel>
         </section>
 
-        <section className="panel p-6">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="eyebrow mb-2">Prévisualisation responsive</p>
-              <h2 className="font-heading text-3xl">Desktop + mobile</h2>
+        <section className="space-y-5">
+          <Panel className="space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="eyebrow mb-2">Prévisualisation responsive</p>
+                <h2 className="font-heading text-3xl">Desktop + mobile</h2>
+              </div>
+              <Tag tone="outline">HTML synchronisé</Tag>
             </div>
-            <span className="pill">HTML synchronisé</span>
-          </div>
 
-          <div className="mt-6 grid gap-6">
             <article className="preview-paper p-4">
               <div className="mb-4 flex items-center justify-between">
-                <span className="pill">Desktop</span>
-                <span className="text-xs uppercase tracking-[0.16em] text-slate-500">1280 px</span>
+                <Tag tone="outline">Desktop</Tag>
+                <span className="text-xs uppercase tracking-[0.16em] text-slate-500">
+                  1280 px
+                </span>
               </div>
               <PreviewNewsletter payload={payload} desktop />
             </article>
 
             <article className="preview-paper mx-auto w-[340px] max-w-full p-3">
               <div className="mb-4 flex items-center justify-between">
-                <span className="pill">Mobile</span>
-                <span className="text-xs uppercase tracking-[0.16em] text-slate-500">390 px</span>
+                <Tag tone="outline">Mobile</Tag>
+                <span className="text-xs uppercase tracking-[0.16em] text-slate-500">
+                  390 px
+                </span>
               </div>
               <PreviewNewsletter payload={payload} desktop={false} />
             </article>
-          </div>
+          </Panel>
         </section>
       </div>
-    </main>
+    </div>
   );
 }
 
@@ -431,7 +452,9 @@ function PreviewNewsletter({
       }`}
     >
       <div className="bg-[linear-gradient(140deg,#112031,#0d6a6d)] px-6 py-8 text-white">
-        <p className="text-xs uppercase tracking-[0.2em] text-white/70">{payload.header.eyebrow}</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-white/70">
+          {payload.header.eyebrow}
+        </p>
         <h3 className="mt-3 font-heading text-3xl leading-tight">{payload.header.title}</h3>
         <p className="mt-4 text-sm leading-7 text-white/80">{payload.header.intro}</p>
       </div>
@@ -439,8 +462,12 @@ function PreviewNewsletter({
       <div className="space-y-4 px-5 py-5">
         {payload.sections.map((section) => (
           <section key={section.id} className="rounded-[22px] bg-[#f7f2ea] p-4">
-            <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">{section.eyebrow}</p>
-            <h4 className="mt-2 font-heading text-2xl leading-tight text-slate-900">{section.title}</h4>
+            <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
+              {section.eyebrow}
+            </p>
+            <h4 className="mt-2 font-heading text-2xl leading-tight text-slate-900">
+              {section.title}
+            </h4>
             <p className="mt-3 text-sm leading-7 text-slate-700">{section.body}</p>
             <div className="mt-4 rounded-[18px] bg-white px-4 py-3 text-sm font-medium text-[var(--brand-ink)]">
               {section.highlight}

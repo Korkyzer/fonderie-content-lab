@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { SeoSuggestion } from "@/lib/seo";
 
 type SeoAssistantProps = {
@@ -20,7 +20,7 @@ export function SeoAssistant({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function runAnalysis() {
+  const runAnalysis = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -39,7 +39,7 @@ export function SeoAssistant({
     } finally {
       setLoading(false);
     }
-  }
+  }, [content, contentType, title]);
 
   useEffect(() => {
     if (visible) {
@@ -48,8 +48,7 @@ export function SeoAssistant({
       }, 0);
       return () => window.clearTimeout(timer);
     }
-    // title and content are intentional SEO inputs.
-  }, [visible, title, content]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [runAnalysis, visible]);
 
   if (!visible) {
     return (
@@ -79,7 +78,10 @@ export function SeoAssistant({
       </div>
 
       {error ? (
-        <div className="mt-5 rounded-[22px] border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div
+          aria-live="polite"
+          className="mt-5 rounded-[22px] border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+        >
           {error}
         </div>
       ) : null}
