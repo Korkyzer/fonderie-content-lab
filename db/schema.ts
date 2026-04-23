@@ -140,3 +140,33 @@ export const personas = sqliteTable("personas", {
   sampleBrief: text("sample_brief").notNull(),
   sampleCopy: text("sample_copy").notNull(),
 });
+
+export const alumni = sqliteTable("alumni", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  graduationYear: integer("graduation_year").notNull(),
+  currentRole: text("current_role").notNull(),
+  company: text("company").notNull(),
+  skills: text("skills").notNull(),
+  bio: text("bio").notNull(),
+});
+
+export const partners = sqliteTable("partners", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  sector: text("sector").notNull(),
+  partnershipType: text("partnership_type").notNull(),
+  contactEmail: text("contact_email").notNull(),
+  description: text("description").notNull(),
+});
+
+export const references = sqliteTable("references", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  title: text("title").notNull(),
+  url: text("url").notNull(),
+  category: text("category").notNull(),
+  tags: text("tags").notNull(),
+  notes: text("notes").notNull(),
+  score: integer("score").notNull(),
+  createdAt: text("created_at").notNull(),
+});

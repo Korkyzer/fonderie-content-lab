@@ -1,5 +1,6 @@
 import { db, sqlite } from "@/db/index";
 import {
+  alumni,
   brandRules,
   calendarEvents,
   competitiveAlerts,
@@ -8,8 +9,10 @@ import {
   competitors,
   contentItems,
   kanbanCards,
+  partners,
   personas,
   prompts,
+  references,
 } from "@/db/schema";
 
 function serializeList(...items: string[]): string {
@@ -27,6 +30,9 @@ async function main() {
   db.delete(competitiveAlerts).run();
   db.delete(prompts).run();
   db.delete(personas).run();
+  db.delete(alumni).run();
+  db.delete(partners).run();
+  db.delete(references).run();
 
   db.insert(contentItems).values([
     {
@@ -1074,6 +1080,265 @@ async function main() {
         "Annoncer l'ouverture des inscriptions pour le Mastère DCDG rentrée 2026.",
       sampleCopy:
         "Tu connais la promo. Tu vois les projets qui sortent. Le Mastère DCDG rentrée 2026 ouvre ses candidatures. Une promo à parrainer ? Une recommandation à faire ? On écoute 💌",
+    },
+  ]).run();
+
+  db.insert(alumni).values([
+    {
+      name: "Mina Roussel",
+      graduationYear: 2020,
+      currentRole: "Lead motion designer",
+      company: "Studio Flamme",
+      skills: serializeList("Motion design", "Branding", "After Effects"),
+      bio: "Pilote des campagnes social video pour des marques culturelles et intervient sur les jurys de fin d’année.",
+    },
+    {
+      name: "Rayan El Fassi",
+      graduationYear: 2018,
+      currentRole: "Creative technologist",
+      company: "TypoLab",
+      skills: serializeList("Creative coding", "Identité", "Expérience interactive"),
+      bio: "Conçoit des installations éditoriales et relie design, narration et prototypes pour des lancements de marque.",
+    },
+    {
+      name: "Camille Dorsin",
+      graduationYear: 2016,
+      currentRole: "Head of social creative",
+      company: "Maison Moka",
+      skills: serializeList("Direction artistique", "Social media", "Campagne école"),
+      bio: "Recrute régulièrement dans le réseau alumni et accompagne les briefs admissions à forte contrainte éditoriale.",
+    },
+    {
+      name: "Noémi Caradec",
+      graduationYear: 2021,
+      currentRole: "Designer éditoriale",
+      company: "Éditions Relief",
+      skills: serializeList("Design éditorial", "Typographie", "Mise en page"),
+      bio: "Travaille sur des narrations print et web au long cours avec un fort niveau d’exigence typographique.",
+    },
+    {
+      name: "Yanis Belfort",
+      graduationYear: 2019,
+      currentRole: "Brand designer",
+      company: "Collectif 36",
+      skills: serializeList("Brand system", "Affiche", "Activation campus"),
+      bio: "Spécialisé dans les identités culturelles et les systèmes visuels déclinables pour événements étudiants.",
+    },
+    {
+      name: "Lila Maret",
+      graduationYear: 2022,
+      currentRole: "Social video strategist",
+      company: "Pixel Parade",
+      skills: serializeList("TikTok", "Hooks", "Montage"),
+      bio: "Optimise les premières secondes des formats courts et aide les équipes à structurer leurs séries vidéo.",
+    },
+    {
+      name: "Alexis Nguyen",
+      graduationYear: 2017,
+      currentRole: "Design lead",
+      company: "Signal Studio",
+      skills: serializeList("UX writing", "Système de design", "Pitch client"),
+      bio: "Dirige des équipes pluridisciplinaires et intervient comme mentor sur les présentations de concepts.",
+    },
+    {
+      name: "Sonia Baccar",
+      graduationYear: 2023,
+      currentRole: "Junior art director",
+      company: "Atelier Nacre",
+      skills: serializeList("DA", "Campagne sociale", "Storyboard"),
+      bio: "Fraîchement diplômée, active sur les campagnes social media lifestyle et les tournages légers.",
+    },
+    {
+      name: "Hugo Marchal",
+      graduationYear: 2015,
+      currentRole: "Creative producer",
+      company: "Northwave",
+      skills: serializeList("Production", "Brief client", "Planning"),
+      bio: "Fait le lien entre stratégie, planning et fabrication sur des productions multicanales à cadence élevée.",
+    },
+    {
+      name: "Jeanne Silva",
+      graduationYear: 2024,
+      currentRole: "Freelance content designer",
+      company: "Indépendante",
+      skills: serializeList("UGC", "LinkedIn", "Newsletter"),
+      bio: "Développe des kits éditoriaux pour petites équipes et documente ses apprentissages auprès des promos récentes.",
+    },
+  ]).run();
+
+  db.insert(partners).values([
+    {
+      name: "Studio Flamme",
+      sector: "Motion design",
+      partnershipType: "alternance",
+      contactEmail: "talents@studioflamme.fr",
+      description: "Accueil de profils motion et participation régulière aux jurys portfolio.",
+    },
+    {
+      name: "Maison Moka",
+      sector: "Marque lifestyle",
+      partnershipType: "stage",
+      contactEmail: "creative@maisonmoka.fr",
+      description: "Briefs de campagnes admissions et stages courts en direction artistique social media.",
+    },
+    {
+      name: "Pixel Parade",
+      sector: "Contenu social",
+      partnershipType: "mentorat",
+      contactEmail: "mentorat@pixelparade.fr",
+      description: "Programme mentorat pour DA junior et coaching portfolio en visio chaque mois.",
+    },
+    {
+      name: "Collectif 36",
+      sector: "Événementiel culturel",
+      partnershipType: "alternance",
+      contactEmail: "studio@collectif36.fr",
+      description: "Co-construction d’identités visuelles d’événements étudiants et accompagnement production.",
+    },
+    {
+      name: "Signal Studio",
+      sector: "Produit numérique",
+      partnershipType: "stage",
+      contactEmail: "hello@signalstudio.fr",
+      description: "Accueil de profils hybrides design éditorial et interface pour des missions de recherche et prototype.",
+    },
+  ]).run();
+
+  db.insert(references).values([
+    {
+      title: "Gobelins · campagne portes ouvertes verticale",
+      url: "https://example.com/gobelins-jpo-vertical",
+      category: "Campagnes écoles",
+      tags: serializeList("JPO", "vertical video", "étudiants"),
+      notes: "Bonne alternance entre social proof, plans atelier et CTA inscription en moins de 20 secondes.",
+      score: 93,
+      createdAt: "2026-04-01T10:00:00+02:00",
+    },
+    {
+      title: "TikTok design trend · texte ultra-court + cut rapide",
+      url: "https://example.com/tiktok-fast-cut",
+      category: "Hooks social media",
+      tags: serializeList("hook", "TikTok", "montage"),
+      notes: "Hook texte en 4 mots, preuve visuelle immédiate, rythme soutenu sur 12 secondes.",
+      score: 91,
+      createdAt: "2026-04-02T10:00:00+02:00",
+    },
+    {
+      title: "Bench visuel carousel portfolio étudiant",
+      url: "https://example.com/portfolio-carousel",
+      category: "Benchmarks visuels",
+      tags: serializeList("portfolio", "carousel", "mise en page"),
+      notes: "Structure très claire pour montrer progression concept, prototypes et résultat final.",
+      score: 88,
+      createdAt: "2026-04-03T10:00:00+02:00",
+    },
+    {
+      title: "LISAA · teasing concours créatif",
+      url: "https://example.com/lisaa-concours",
+      category: "Campagnes écoles",
+      tags: serializeList("concours", "teasing", "campagne"),
+      notes: "Bonne mécanique de révélation en 3 temps avec codes couleur simples et angle ambition métier.",
+      score: 86,
+      createdAt: "2026-04-04T10:00:00+02:00",
+    },
+    {
+      title: "Moodboard typographique signalétique expo",
+      url: "https://example.com/type-signaletique",
+      category: "Tendances design",
+      tags: serializeList("typographie", "signalétique", "expo"),
+      notes: "Très bon usage d’une grille rigoureuse et de contrastes forts pour la hiérarchie des infos.",
+      score: 84,
+      createdAt: "2026-04-05T10:00:00+02:00",
+    },
+    {
+      title: "Hook Reels · avant/après storyboard",
+      url: "https://example.com/reels-storyboard",
+      category: "Hooks social media",
+      tags: serializeList("Reels", "avant-après", "storyboard"),
+      notes: "Le basculement avant/après arrive dès la seconde 2 et maintient la curiosité jusqu’au CTA.",
+      score: 89,
+      createdAt: "2026-04-06T10:00:00+02:00",
+    },
+    {
+      title: "Gobelins alumni portrait LinkedIn",
+      url: "https://example.com/gobelins-alumni-linkedin",
+      category: "Campagnes écoles",
+      tags: serializeList("alumni", "LinkedIn", "portrait"),
+      notes: "Format très crédible pour valoriser un parcours sans perdre la preuve concrète du métier.",
+      score: 92,
+      createdAt: "2026-04-07T10:00:00+02:00",
+    },
+    {
+      title: "Trend social · captions manuscrites sur rush atelier",
+      url: "https://example.com/captions-atelier",
+      category: "Tendances design",
+      tags: serializeList("caption", "atelier", "rush"),
+      notes: "Surcouche éditoriale très simple qui humanise les images atelier et rend le contenu plus mémorable.",
+      score: 83,
+      createdAt: "2026-04-08T10:00:00+02:00",
+    },
+    {
+      title: "Benchmark visuel mini-site portfolio promo",
+      url: "https://example.com/mini-site-promo",
+      category: "Benchmarks visuels",
+      tags: serializeList("mini-site", "promo", "portfolio"),
+      notes: "Répartition claire entre navigation, galerie projets et témoignages, avec un ton premium mais accessible.",
+      score: 87,
+      createdAt: "2026-04-09T10:00:00+02:00",
+    },
+    {
+      title: "Hook face cam + preuve campus immédiate",
+      url: "https://example.com/facecam-campus",
+      category: "Hooks social media",
+      tags: serializeList("face cam", "campus", "preuve"),
+      notes: "Ouvre par une question courte, enchaîne directement sur la preuve visuelle et la réponse utile.",
+      score: 85,
+      createdAt: "2026-04-10T10:00:00+02:00",
+    },
+    {
+      title: "Campagne école alternance en 3 chiffres",
+      url: "https://example.com/alternance-3-chiffres",
+      category: "Campagnes écoles",
+      tags: serializeList("alternance", "preuve sociale", "LinkedIn"),
+      notes: "Bon angle chiffres-clés pour rassurer parents et entreprises sans surcharger le visuel.",
+      score: 90,
+      createdAt: "2026-04-11T10:00:00+02:00",
+    },
+    {
+      title: "Trend design · collage éditorial matières",
+      url: "https://example.com/collage-matieres",
+      category: "Tendances design",
+      tags: serializeList("collage", "matière", "editorial"),
+      notes: "Texture et découpe donnent du caractère sans perdre la lisibilité des messages courts.",
+      score: 82,
+      createdAt: "2026-04-12T10:00:00+02:00",
+    },
+    {
+      title: "Benchmark page témoignages alumni",
+      url: "https://example.com/testimonials-board",
+      category: "Benchmarks visuels",
+      tags: serializeList("témoignages", "alumni", "social proof"),
+      notes: "Très bon rythme entre citation, portrait et call-to-action de mise en relation.",
+      score: 88,
+      createdAt: "2026-04-13T10:00:00+02:00",
+    },
+    {
+      title: "Hook social media · top 3 erreurs portfolio",
+      url: "https://example.com/top3-portfolio",
+      category: "Hooks social media",
+      tags: serializeList("top 3", "portfolio", "conseil"),
+      notes: "Très fort potentiel de sauvegarde grâce à une promesse claire et des erreurs concrètes.",
+      score: 86,
+      createdAt: "2026-04-14T10:00:00+02:00",
+    },
+    {
+      title: "Campagne Gobelins x festival avec code couleur unique",
+      url: "https://example.com/gobelins-festival",
+      category: "Campagnes écoles",
+      tags: serializeList("festival", "code couleur", "événement"),
+      notes: "Système simple et très déclinable pour posts, stories, affiches et signalétique campus.",
+      score: 94,
+      createdAt: "2026-04-15T10:00:00+02:00",
     },
   ]).run();
 }
