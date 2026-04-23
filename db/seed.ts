@@ -8,6 +8,7 @@ import {
   competitiveAlerts,
   competitorInsights,
   competitorMetrics,
+  campaignKits,
   competitors,
   contentItems,
   kanbanCards,
@@ -16,7 +17,9 @@ import {
   prompts,
   references,
   users,
+  templates,
 } from "@/db/schema";
+import { TEMPLATE_SEEDS } from "@/lib/data/templates-seed";
 
 function serializeList(...items: string[]): string {
   return JSON.stringify(items);
@@ -40,6 +43,8 @@ async function main() {
   db.delete(alumni).run();
   db.delete(partners).run();
   db.delete(references).run();
+  db.delete(campaignKits).run();
+  db.delete(templates).run();
 
   db.insert(users).values([
     {
@@ -71,6 +76,32 @@ async function main() {
       avatarUrl: null,
     },
   ]).run();
+
+  const seedNow = new Date().toISOString();
+  db.insert(templates)
+    .values(
+      TEMPLATE_SEEDS.map((seed) => ({
+        slug: seed.slug,
+        name: seed.name,
+        description: seed.description,
+        kind: seed.kind,
+        formation: seed.formation ?? null,
+        eventName: seed.eventName ?? null,
+        audience: seed.audience ?? null,
+        platform: seed.platform,
+        tone: seed.tone,
+        visualStyle: seed.visualStyle,
+        duration: seed.duration,
+        cta: seed.cta,
+        structure: JSON.stringify(seed.structure),
+        assets: JSON.stringify(seed.assets),
+        briefSeed: seed.briefSeed,
+        archived: false,
+        createdAt: seedNow,
+        updatedAt: seedNow,
+      })),
+    )
+    .run();
 
   db.insert(contentItems).values([
     {

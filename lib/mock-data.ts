@@ -55,6 +55,13 @@ export const navigation: NavItem[] = [
     kbd: "O",
   },
   {
+    href: "/templates",
+    label: "Templates",
+    section: "Workspace",
+    icon: "bookmark",
+    kbd: "T",
+  },
+  {
     href: "/competitive",
     label: "Veille concurrentielle",
     section: "Intelligence",
@@ -136,6 +143,20 @@ export const pageMeta: Record<
     eyebrow: "Distribution",
     description:
       "Configurez les canaux qui publieront automatiquement les contenus planifiés.",
+  },
+  "/templates": {
+    crumb: "Templates",
+    title: "Templates visuels et kits de campagne",
+    eyebrow: "Bibliothèque",
+    description:
+      "Modèles prêts à l'emploi pour chaque formation, événement et audience CFI.",
+  },
+  "/generator/campaign": {
+    crumb: "Campagne 360",
+    title: "Générateur campagne complète",
+    eyebrow: "Atelier",
+    description:
+      "Décris un objectif, génère un kit multi-plateforme prêt à valider en un clic.",
   },
   "/competitive": {
     crumb: "Veille",
