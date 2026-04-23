@@ -41,6 +41,13 @@ export const navigation: NavItem[] = [
     kbd: "C",
   },
   {
+    href: "/community",
+    label: "Communauté",
+    section: "Workspace",
+    icon: "users",
+    kbd: "U",
+  },
+  {
     href: "/competitive",
     label: "Veille concurrentielle",
     section: "Intelligence",
@@ -60,6 +67,13 @@ export const navigation: NavItem[] = [
     section: "Intelligence",
     icon: "users",
     kbd: "A",
+  },
+  {
+    href: "/inspiration",
+    label: "Références créatives",
+    section: "Intelligence",
+    icon: "bookmark",
+    kbd: "I",
   },
 ];
 
@@ -102,6 +116,13 @@ export const pageMeta: Record<
     description:
       "Vue mensuelle des publications, événements CFI et moments de l’année scolaire.",
   },
+  "/community": {
+    crumb: "Communauté",
+    title: "Hub alumni, partenaires et opportunités",
+    eyebrow: "Réseau",
+    description:
+      "Annuaire alumni, partenaires entreprises, appels à projets et témoignages prêts à activer.",
+  },
   "/competitive": {
     crumb: "Veille",
     title: "Veille concurrentielle des écoles créatives",
@@ -122,5 +143,12 @@ export const pageMeta: Record<
     eyebrow: "Intelligence",
     description:
       "Cibles éditoriales, vocabulaire à privilégier, mots à éviter.",
+  },
+  "/inspiration": {
+    crumb: "Inspiration",
+    title: "Repository de références créatives",
+    eyebrow: "Intelligence",
+    description:
+      "Benchmarks visuels, hooks et tendances à transformer en briefs activables dans le générateur.",
   },
 };
