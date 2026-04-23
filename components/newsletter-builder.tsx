@@ -2,6 +2,14 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { Input } from "@/components/ui/input";
+import { Panel } from "@/components/ui/panel";
+import { SectionHeading } from "@/components/ui/section-heading";
+import { Tag } from "@/components/ui/tag";
+import { Textarea } from "@/components/ui/textarea";
 import {
   NEWSLETTER_SNIPPETS,
   NEWSLETTER_TEMPLATES,
@@ -11,6 +19,7 @@ import {
   type NewsletterSection,
   type StoredNewsletterDraft,
 } from "@/lib/newsletter";
+import { cx } from "@/lib/utils";
 
 type NewsletterBuilderProps = {
   initialDrafts: StoredNewsletterDraft[];
@@ -113,7 +122,9 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
         return next.slice(0, 12);
       });
       setSaveState("saved");
-      setSaveMessage(`Brouillon enregistré le ${new Date(json.draft.updatedAt).toLocaleString("fr-FR")}`);
+      setSaveMessage(
+        `Brouillon enregistré le ${new Date(json.draft.updatedAt).toLocaleString("fr-FR")}`,
+      );
     } catch (issue) {
       setSaveState("error");
       setSaveMessage(issue instanceof Error ? issue.message : "Sauvegarde impossible");
@@ -131,81 +142,108 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
   }
 
   return (
-    <main className="shell px-5 py-5 md:px-8 md:py-8">
+    <div className="space-y-6">
+      <SectionHeading
+        eyebrow="Newsletter builder"
+        title="Assembler, prévisualiser et exporter les newsletters CFI"
+        description="Pilotez le brief, relisez le rendu desktop et mobile, puis exportez un HTML prêt à envoyer."
+      />
+
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(420px,0.95fr)]">
-        <section className="panel p-6 md:p-8">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/8 pb-6">
-            <div>
-              <p className="eyebrow mb-2">Newsletter builder</p>
-              <h1 className="font-heading text-4xl leading-tight md:text-6xl">
-                Assembler, prévisualiser et exporter les newsletters CFI.
-              </h1>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Link href="/" className="pill">
-                Retour au générateur
-              </Link>
-              <span className="pill">Desktop + mobile</span>
-              <span className="pill">Export HTML</span>
-            </div>
+        <Panel className="space-y-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 rounded-sm border border-ink/15 bg-white px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.05em] text-ink transition-colors hover:border-ink hover:bg-cream"
+            >
+              <Icon name="arrow" size={12} />
+              Retour au générateur
+            </Link>
+            <Tag tone="sky">Desktop + mobile</Tag>
+            <Tag tone="outline">Export HTML</Tag>
           </div>
 
-          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
-            <div className="space-y-5">
-              <section className="newsletter-card p-5">
-                <div className="mb-4 flex items-center justify-between gap-4">
-                  <p className="text-sm font-semibold">Templates CFI</p>
-                  <button type="button" className="button-secondary" onClick={addSection}>
-                    Ajouter une section
-                  </button>
+          <div className="grid gap-6 border-t border-ink/8 pt-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+            <div className="space-y-4">
+              <section className="rounded-md border border-ink/10 bg-white p-4">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+                    Templates CFI
+                  </p>
+                  <Button
+                    variant="light"
+                    size="sm"
+                    icon={<Icon name="plus" size={12} />}
+                    onClick={addSection}
+                  >
+                    Section
+                  </Button>
                 </div>
-                <div className="space-y-3">
-                  {NEWSLETTER_TEMPLATES.map((template) => (
-                    <button
-                      key={template.key}
-                      type="button"
-                      onClick={() => applyTemplate(template.key)}
-                      className={`w-full rounded-[22px] border px-4 py-4 text-left transition ${
-                        templateKey === template.key
-                          ? "border-[rgba(13,106,109,0.28)] bg-[rgba(13,106,109,0.08)]"
-                          : "border-black/8 bg-white/70 hover:-translate-y-0.5"
-                      }`}
-                    >
-                      <div className="text-sm font-semibold">{template.name}</div>
-                      <div className="mt-1 text-sm leading-6 text-slate-700">{template.description}</div>
-                    </button>
-                  ))}
+                <div className="space-y-2">
+                  {NEWSLETTER_TEMPLATES.map((template) => {
+                    const active = templateKey === template.key;
+                    return (
+                      <button
+                        key={template.key}
+                        type="button"
+                        onClick={() => applyTemplate(template.key)}
+                        className={cx(
+                          "block w-full rounded-sm border px-3 py-3 text-left transition-all duration-150 ease-brand",
+                          active
+                            ? "border-ink bg-purple-soft/50 shadow-card"
+                            : "border-ink/10 bg-cream hover:-translate-x-px hover:-translate-y-px hover:border-ink hover:bg-white",
+                        )}
+                      >
+                        <div className="text-[13px] font-bold uppercase tracking-[0.02em]">
+                          {template.name}
+                        </div>
+                        <div className="mt-1 text-[12px] leading-relaxed text-ink/72">
+                          {template.description}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </section>
 
-              <section className="newsletter-card p-5">
-                <p className="mb-4 text-sm font-semibold">Pré-remplissage depuis les contenus existants</p>
-                <div className="space-y-3">
+              <section className="rounded-md border border-ink/10 bg-white p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+                  Pré-remplissage depuis les contenus existants
+                </p>
+                <div className="mt-3 space-y-2">
                   {NEWSLETTER_SNIPPETS.map((snippet) => (
                     <button
                       key={snippet.title}
                       type="button"
-                      className="w-full rounded-[22px] border border-black/8 bg-slate-950/2 px-4 py-3 text-left hover:bg-slate-950/4"
+                      className="block w-full rounded-sm border border-ink/10 bg-cream px-3 py-2.5 text-left transition-all duration-150 ease-brand hover:-translate-x-px hover:-translate-y-px hover:border-ink hover:bg-white"
                       onClick={() => injectSnippet(snippet.title, snippet.body)}
                     >
-                      <div className="text-sm font-semibold">{snippet.title}</div>
-                      <div className="mt-1 text-sm leading-6 text-slate-700">{snippet.body}</div>
+                      <div className="text-[13px] font-bold uppercase tracking-[0.02em]">
+                        {snippet.title}
+                      </div>
+                      <div className="mt-1 text-[12px] leading-relaxed text-ink/72">
+                        {snippet.body}
+                      </div>
                     </button>
                   ))}
                 </div>
               </section>
 
-              <section className="newsletter-card p-5">
-                <p className="mb-4 text-sm font-semibold">Brouillons enregistrés</p>
-                <div className="space-y-3">
+              <section className="rounded-md border border-ink/10 bg-white p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+                  Brouillons enregistrés
+                </p>
+                <div className="mt-3 space-y-2">
                   {drafts.length === 0 ? (
-                    <p className="text-sm text-slate-600">Aucun brouillon enregistré pour le moment.</p>
+                    <p className="text-[12px] text-ink/60">
+                      Aucun brouillon enregistré pour le moment.
+                    </p>
                   ) : (
                     drafts.map((draft) => (
                       <button
                         key={draft.id}
                         type="button"
-                        className="w-full rounded-[22px] border border-black/8 bg-white/70 px-4 py-3 text-left hover:bg-white"
+                        className="block w-full rounded-sm border border-ink/10 bg-cream px-3 py-2.5 text-left transition-all duration-150 ease-brand hover:-translate-x-px hover:-translate-y-px hover:border-ink hover:bg-white"
                         onClick={() => {
                           setDraftId(draft.id);
                           setTemplateKey(draft.templateKey);
@@ -214,8 +252,10 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                           setSaveMessage("");
                         }}
                       >
-                        <div className="text-sm font-semibold">{draft.title}</div>
-                        <div className="mt-1 text-xs uppercase tracking-[0.15em] text-slate-500">
+                        <div className="text-[13px] font-bold uppercase tracking-[0.02em]">
+                          {draft.title}
+                        </div>
+                        <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ink/55">
                           {new Date(draft.updatedAt).toLocaleString("fr-FR")}
                         </div>
                       </button>
@@ -225,12 +265,14 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
               </section>
             </div>
 
-            <div className="space-y-5">
-              <section className="newsletter-card p-5">
-                <p className="mb-4 text-sm font-semibold">En-tête</p>
-                <div className="grid gap-4">
-                  <input
-                    className="field"
+            <div className="space-y-4">
+              <section className="rounded-md border border-ink/10 bg-white p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+                  En-tête
+                </p>
+                <div className="mt-3 grid gap-3">
+                  <Input
+                    label="Eyebrow"
                     value={payload.header.eyebrow}
                     onChange={(event) =>
                       setPayload((current) => ({
@@ -238,10 +280,9 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                         header: { ...current.header, eyebrow: event.target.value },
                       }))
                     }
-                    placeholder="Eyebrow"
                   />
-                  <input
-                    className="field"
+                  <Input
+                    label="Titre"
                     value={payload.header.title}
                     onChange={(event) =>
                       setPayload((current) => ({
@@ -249,10 +290,9 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                         header: { ...current.header, title: event.target.value },
                       }))
                     }
-                    placeholder="Titre"
                   />
-                  <textarea
-                    className="field min-h-28"
+                  <Textarea
+                    label="Introduction"
                     value={payload.header.intro}
                     onChange={(event) =>
                       setPayload((current) => ({
@@ -260,71 +300,73 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                         header: { ...current.header, intro: event.target.value },
                       }))
                     }
-                    placeholder="Introduction"
                   />
                 </div>
               </section>
 
-              <section className="newsletter-card p-5">
-                <div className="mb-4 flex items-center justify-between gap-4">
-                  <p className="text-sm font-semibold">Sections éditables</p>
-                  <span className="pill">{payload.sections.length} modules</span>
+              <section className="rounded-md border border-ink/10 bg-white p-4">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+                    Sections éditables
+                  </p>
+                  <Tag tone="outline">{payload.sections.length} modules</Tag>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {payload.sections.map((section) => (
-                    <div key={section.id} className="rounded-[22px] border border-black/8 bg-white/70 p-4">
+                    <div
+                      key={section.id}
+                      className="rounded-sm border border-ink/10 bg-cream p-3"
+                    >
                       <div className="grid gap-3">
-                        <input
-                          className="field"
+                        <Input
+                          label="Sur-titre"
                           value={section.eyebrow}
                           onChange={(event) =>
                             patchSection(section.id, { eyebrow: event.target.value })
                           }
-                          placeholder="Sur-titre"
                         />
-                        <input
-                          className="field"
+                        <Input
+                          label="Titre"
                           value={section.title}
                           onChange={(event) =>
                             patchSection(section.id, { title: event.target.value })
                           }
-                          placeholder="Titre de section"
                         />
-                        <textarea
-                          className="field min-h-28"
+                        <Textarea
+                          label="Contenu"
                           value={section.body}
                           onChange={(event) =>
                             patchSection(section.id, { body: event.target.value })
                           }
-                          placeholder="Contenu"
                         />
-                        <input
-                          className="field"
+                        <Input
+                          label="Encadré / preuve"
                           value={section.highlight}
                           onChange={(event) =>
                             patchSection(section.id, { highlight: event.target.value })
                           }
-                          placeholder="Encadré / preuve"
                         />
-                        <button
-                          type="button"
-                          className="button-secondary"
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => removeSection(section.id)}
                         >
                           Supprimer la section
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   ))}
                 </div>
               </section>
 
-              <section className="grid gap-5 md:grid-cols-2">
-                <div className="newsletter-card p-5">
-                  <p className="mb-4 text-sm font-semibold">Call-to-action</p>
-                  <div className="grid gap-3">
-                    <input
-                      className="field"
+              <section className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-md border border-ink/10 bg-white p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+                    Call-to-action
+                  </p>
+                  <div className="mt-3 grid gap-3">
+                    <Input
+                      label="Label"
                       value={payload.cta.label}
                       onChange={(event) =>
                         setPayload((current) => ({
@@ -333,8 +375,8 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                         }))
                       }
                     />
-                    <input
-                      className="field"
+                    <Input
+                      label="URL"
                       value={payload.cta.url}
                       onChange={(event) =>
                         setPayload((current) => ({
@@ -345,11 +387,13 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                     />
                   </div>
                 </div>
-                <div className="newsletter-card p-5">
-                  <p className="mb-4 text-sm font-semibold">Footer</p>
-                  <div className="grid gap-3">
-                    <textarea
-                      className="field min-h-28"
+                <div className="rounded-md border border-ink/10 bg-white p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+                    Footer
+                  </p>
+                  <div className="mt-3 grid gap-3">
+                    <Textarea
+                      label="Note"
                       value={payload.footer.note}
                       onChange={(event) =>
                         setPayload((current) => ({
@@ -358,8 +402,8 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                         }))
                       }
                     />
-                    <input
-                      className="field"
+                    <Input
+                      label="Signature"
                       value={payload.footer.signature}
                       onChange={(event) =>
                         setPayload((current) => ({
@@ -372,55 +416,69 @@ export function NewsletterBuilder({ initialDrafts }: NewsletterBuilderProps) {
                 </div>
               </section>
 
-              <div className="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  className="button-primary"
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant="primary"
+                  size="md"
+                  icon={<Icon name="check" size={12} />}
                   onClick={() => void handleSave()}
                   disabled={saveState === "saving"}
                 >
-                  {saveState === "saving" ? "Sauvegarde..." : "Sauvegarder en DB"}
-                </button>
-                <button type="button" className="button-secondary" onClick={exportHtml}>
-                  Exporter en HTML
-                </button>
-                <span className="pill">
-                  {saveMessage || "Le brouillon est prêt pour Brevo ou Mailchimp."}
-                </span>
+                  {saveState === "saving" ? "Sauvegarde..." : "Sauvegarder"}
+                </Button>
+                <Button
+                  variant="light"
+                  size="md"
+                  icon={<Icon name="arrow" size={12} />}
+                  onClick={exportHtml}
+                >
+                  Exporter HTML
+                </Button>
+                {saveMessage ? (
+                  <Tag tone={saveState === "error" ? "red" : "green"}>{saveMessage}</Tag>
+                ) : (
+                  <Tag tone="outline">Prêt pour Brevo ou Mailchimp</Tag>
+                )}
               </div>
             </div>
           </div>
-        </section>
+        </Panel>
 
-        <section className="panel p-6">
-          <div className="flex items-center justify-between gap-4">
+        <Panel className="space-y-5">
+          <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="eyebrow mb-2">Prévisualisation responsive</p>
-              <h2 className="font-heading text-3xl">Desktop + mobile</h2>
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+                Prévisualisation responsive
+              </p>
+              <h2 className="mt-1 text-b2 font-display uppercase leading-tight">
+                Desktop + mobile
+              </h2>
             </div>
-            <span className="pill">HTML synchronisé</span>
+            <Tag tone="sky">HTML synchronisé</Tag>
           </div>
 
-          <div className="mt-6 grid gap-6">
-            <article className="preview-paper p-4">
-              <div className="mb-4 flex items-center justify-between">
-                <span className="pill">Desktop</span>
-                <span className="text-xs uppercase tracking-[0.16em] text-slate-500">1280 px</span>
-              </div>
-              <PreviewNewsletter payload={payload} desktop />
-            </article>
+          <article className="rounded-md border border-ink/8 bg-white p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <Tag tone="outline">Desktop</Tag>
+              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+                1280 px
+              </span>
+            </div>
+            <PreviewNewsletter payload={payload} desktop />
+          </article>
 
-            <article className="preview-paper mx-auto w-[340px] max-w-full p-3">
-              <div className="mb-4 flex items-center justify-between">
-                <span className="pill">Mobile</span>
-                <span className="text-xs uppercase tracking-[0.16em] text-slate-500">390 px</span>
-              </div>
-              <PreviewNewsletter payload={payload} desktop={false} />
-            </article>
-          </div>
-        </section>
+          <article className="mx-auto w-[340px] max-w-full rounded-md border border-ink/8 bg-white p-3">
+            <div className="mb-3 flex items-center justify-between">
+              <Tag tone="outline">Mobile</Tag>
+              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+                390 px
+              </span>
+            </div>
+            <PreviewNewsletter payload={payload} desktop={false} />
+          </article>
+        </Panel>
       </div>
-    </main>
+    </div>
   );
 }
 
@@ -433,39 +491,52 @@ function PreviewNewsletter({
 }) {
   return (
     <div
-      className={`mx-auto overflow-hidden rounded-[26px] bg-white shadow-[0_24px_80px_rgba(17,32,49,0.12)] ${
-        desktop ? "max-w-[720px]" : "max-w-[316px]"
-      }`}
+      className={cx(
+        "mx-auto overflow-hidden rounded-sm border border-ink/10 bg-cream shadow-card",
+        desktop ? "max-w-[720px]" : "max-w-[316px]",
+      )}
     >
-      <div className="bg-[linear-gradient(140deg,#112031,#0d6a6d)] px-6 py-8 text-white">
-        <p className="text-xs uppercase tracking-[0.2em] text-white/70">{payload.header.eyebrow}</p>
-        <h3 className="mt-3 font-heading text-3xl leading-tight">{payload.header.title}</h3>
-        <p className="mt-4 text-sm leading-7 text-white/80">{payload.header.intro}</p>
+      <div className="bg-ink px-6 py-7 text-cream">
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-cream/60">
+          {payload.header.eyebrow}
+        </p>
+        <h3 className="mt-2 font-display text-[28px] uppercase leading-tight">
+          {payload.header.title}
+        </h3>
+        <p className="mt-3 text-[13px] leading-relaxed text-cream/80">
+          {payload.header.intro}
+        </p>
       </div>
 
-      <div className="space-y-4 px-5 py-5">
+      <div className="space-y-3 px-5 py-5">
         {payload.sections.map((section) => (
-          <section key={section.id} className="rounded-[22px] bg-[#f7f2ea] p-4">
-            <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">{section.eyebrow}</p>
-            <h4 className="mt-2 font-heading text-2xl leading-tight text-slate-900">{section.title}</h4>
-            <p className="mt-3 text-sm leading-7 text-slate-700">{section.body}</p>
-            <div className="mt-4 rounded-[18px] bg-white px-4 py-3 text-sm font-medium text-[var(--brand-ink)]">
+          <section key={section.id} className="rounded-sm border border-ink/10 bg-white p-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+              {section.eyebrow}
+            </p>
+            <h4 className="mt-1 font-display text-[18px] uppercase leading-tight">
+              {section.title}
+            </h4>
+            <p className="mt-2 text-[12px] leading-relaxed text-ink/72">{section.body}</p>
+            <div className="mt-3 rounded-sm border-l-4 border-purple bg-purple-soft/40 px-3 py-2 text-[12px] font-medium text-ink">
               {section.highlight}
             </div>
           </section>
         ))}
       </div>
 
-      <div className="px-5 pb-6">
+      <div className="space-y-3 px-5 pb-5">
         <a
           href={payload.cta.url}
-          className="block rounded-[999px] bg-[var(--brand)] px-5 py-4 text-center text-sm font-semibold text-white"
+          className="block rounded-sm border border-ink bg-purple px-4 py-3 text-center text-[12px] font-bold uppercase tracking-[0.06em] text-ink shadow-hard"
         >
           {payload.cta.label}
         </a>
-        <div className="mt-5 rounded-[22px] border border-black/8 bg-white px-4 py-4 text-sm leading-7 text-slate-600">
+        <div className="rounded-sm border border-ink/10 bg-white px-4 py-3 text-[12px] leading-relaxed text-ink/72">
           <p>{payload.footer.note}</p>
-          <p className="mt-2 font-medium text-slate-900">{payload.footer.signature}</p>
+          <p className="mt-2 font-bold uppercase tracking-[0.02em] text-ink">
+            {payload.footer.signature}
+          </p>
         </div>
       </div>
     </div>

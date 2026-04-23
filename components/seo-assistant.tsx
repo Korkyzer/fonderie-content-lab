@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Panel } from "@/components/ui/panel";
+import { Tag } from "@/components/ui/tag";
 import type { SeoSuggestion } from "@/lib/seo";
 
 type SeoAssistantProps = {
@@ -63,101 +67,141 @@ export function SeoAssistant({
 
   if (!visible) {
     return (
-      <aside className="panel flex min-h-[320px] items-center justify-center p-6 text-center">
-        <div>
-          <p className="eyebrow mb-2">Assistant SEO</p>
-          <h2 className="font-heading text-3xl">Disponible sur les articles et pages web</h2>
-          <p className="mt-3 text-sm leading-7 text-slate-700">
+      <Panel className="flex min-h-[320px] items-center justify-center text-center">
+        <div className="max-w-xs space-y-2">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+            Assistant SEO
+          </p>
+          <h2 className="text-b2 font-display uppercase leading-tight">
+            Disponible sur articles et pages web
+          </h2>
+          <p className="text-[13px] leading-relaxed text-ink/72">
             Sélectionnez un type de contenu indexable pour obtenir mots-clés, maillage et
             structure de titres.
           </p>
         </div>
-      </aside>
+      </Panel>
     );
   }
 
   return (
-    <aside className="panel sticky top-6 h-fit p-6">
-      <div className="flex items-start justify-between gap-4">
+    <Panel className="sticky top-6 h-fit space-y-5">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="eyebrow mb-2">Assistant SEO</p>
-          <h2 className="font-heading text-3xl">Panel latéral d’optimisation</h2>
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+            Assistant SEO
+          </p>
+          <h2 className="mt-1 text-b2 font-display uppercase leading-tight">
+            Optimisation indexation
+          </h2>
         </div>
-        <button type="button" className="button-secondary" onClick={() => void runAnalysis()}>
+        <Button
+          variant="light"
+          size="sm"
+          onClick={() => void runAnalysis()}
+          disabled={loading}
+        >
           {loading ? "Analyse..." : "Relancer"}
-        </button>
+        </Button>
       </div>
 
       {error ? (
-        <div className="mt-5 rounded-[22px] border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="rounded-sm border border-red/30 bg-red/10 p-3 text-[12px] font-medium text-red">
           {error}
         </div>
       ) : null}
 
       {!data ? (
-        <div className="mt-8 space-y-3">
-          <div className="h-18 animate-pulse rounded-[20px] bg-slate-900/6" />
-          <div className="h-32 animate-pulse rounded-[20px] bg-slate-900/6" />
-          <div className="h-24 animate-pulse rounded-[20px] bg-slate-900/6" />
+        <div className="space-y-3">
+          <div className="h-20 animate-pulse rounded-sm bg-ink/6" />
+          <div className="h-28 animate-pulse rounded-sm bg-ink/6" />
+          <div className="h-24 animate-pulse rounded-sm bg-ink/6" />
         </div>
       ) : (
-        <div className="mt-6 space-y-5">
-          <section className="newsletter-card p-4">
-            <div className="flex items-center justify-between gap-4">
+        <div className="space-y-4">
+          <section className="rounded-sm border border-ink/10 bg-white p-4">
+            <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Score estimé</p>
-                <h3 className="mt-2 text-4xl font-semibold">{data.score}/100</h3>
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+                  Score estimé
+                </p>
+                <p className="mt-2 text-[32px] font-bold leading-none">
+                  {data.score}
+                  <span className="text-[18px] text-ink/60">/100</span>
+                </p>
               </div>
-              <span className="pill">{data.provider}</span>
+              <Tag tone="outline">{data.provider}</Tag>
             </div>
-            <p className="mt-3 text-sm leading-7 text-slate-700">{data.notes}</p>
+            <p className="mt-3 text-[13px] leading-relaxed text-ink/72">{data.notes}</p>
           </section>
 
-          <section className="newsletter-card p-4">
-            <p className="text-sm font-semibold">Mots-clés suggérés</p>
-            <div className="mt-3 flex flex-wrap gap-2">
+          <section className="rounded-sm border border-ink/10 bg-white p-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+              Mots-clés suggérés
+            </p>
+            <div className="mt-3 flex flex-wrap gap-1.5">
               {data.keywords.map((keyword) => (
-                <span key={keyword} className="pill">
+                <Tag key={keyword} tone="lila">
                   {keyword}
-                </span>
+                </Tag>
               ))}
             </div>
           </section>
 
-          <section className="newsletter-card p-4">
-            <p className="text-sm font-semibold">Meta description</p>
-            <p className="mt-3 text-sm leading-7 text-slate-700">{data.metaDescription}</p>
+          <section className="rounded-sm border border-ink/10 bg-white p-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+              Meta description
+            </p>
+            <p className="mt-2 text-[13px] leading-relaxed text-ink/72">
+              {data.metaDescription}
+            </p>
           </section>
 
-          <section className="newsletter-card p-4">
-            <p className="text-sm font-semibold">Structure recommandée</p>
-            <div className="mt-3 space-y-3 text-sm leading-7 text-slate-700">
-              <div>
-                <strong>H1</strong>: {data.headings.h1}
+          <section className="rounded-sm border border-ink/10 bg-white p-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+              Structure recommandée
+            </p>
+            <dl className="mt-3 space-y-2 text-[13px] leading-relaxed text-ink/78">
+              <div className="flex gap-2">
+                <dt className="min-w-[24px] font-bold uppercase text-ink">H1</dt>
+                <dd>{data.headings.h1}</dd>
               </div>
-              <div>
-                <strong>H2</strong>: {data.headings.h2.join(" · ")}
+              <div className="flex gap-2">
+                <dt className="min-w-[24px] font-bold uppercase text-ink">H2</dt>
+                <dd>{data.headings.h2.join(" · ")}</dd>
               </div>
-              <div>
-                <strong>H3</strong>: {data.headings.h3.join(" · ")}
+              <div className="flex gap-2">
+                <dt className="min-w-[24px] font-bold uppercase text-ink">H3</dt>
+                <dd>{data.headings.h3.join(" · ")}</dd>
               </div>
-            </div>
+            </dl>
           </section>
 
-          <section className="newsletter-card p-4">
-            <p className="text-sm font-semibold">Maillage interne CFI</p>
-            <div className="mt-3 space-y-3">
+          <section className="rounded-sm border border-ink/10 bg-white p-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+              Maillage interne CFI
+            </p>
+            <div className="mt-3 space-y-2">
               {data.internalLinks.map((link) => (
-                <div key={link.url} className="rounded-2xl bg-slate-950/3 p-3">
-                  <div className="text-sm font-semibold">{link.title}</div>
-                  <div className="mt-1 text-xs text-slate-500">{link.url}</div>
-                  <p className="mt-2 text-sm leading-6 text-slate-700">{link.reason}</p>
+                <div
+                  key={link.url}
+                  className="rounded-sm border border-ink/8 bg-cream p-3"
+                >
+                  <div className="text-[13px] font-bold uppercase tracking-[0.02em]">
+                    {link.title}
+                  </div>
+                  <div className="mt-1 text-[11px] font-medium text-ink/55">
+                    {link.url}
+                  </div>
+                  <p className="mt-2 text-[12px] leading-relaxed text-ink/72">
+                    {link.reason}
+                  </p>
                 </div>
               ))}
             </div>
           </section>
         </div>
       )}
-    </aside>
+    </Panel>
   );
 }
