@@ -40,7 +40,6 @@ export class RequestyError extends Error {
     this.retryable = Boolean(opts.retryable);
   }
 }
-
 export function hasRequestyKey(): boolean {
   return Boolean(process.env.REQUESTY_API_KEY?.trim());
 }
