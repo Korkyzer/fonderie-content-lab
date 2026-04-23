@@ -109,3 +109,38 @@ export const personas = sqliteTable("personas", {
   sampleBrief: text("sample_brief").notNull(),
   sampleCopy: text("sample_copy").notNull(),
 });
+
+export const templates = sqliteTable("templates", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  slug: text("slug").notNull(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  kind: text("kind").notNull(),
+  formation: text("formation"),
+  eventName: text("event_name"),
+  audience: text("audience"),
+  platform: text("platform").notNull(),
+  tone: text("tone").notNull(),
+  visualStyle: text("visual_style").notNull(),
+  duration: text("duration").notNull(),
+  cta: text("cta").notNull(),
+  structure: text("structure").notNull(),
+  assets: text("assets").notNull(),
+  briefSeed: text("brief_seed").notNull(),
+  archived: integer("archived", { mode: "boolean" }).notNull().default(false),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const campaignKits = sqliteTable("campaign_kits", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  slug: text("slug").notNull(),
+  objective: text("objective").notNull(),
+  formation: text("formation"),
+  eventName: text("event_name"),
+  templateSlug: text("template_slug"),
+  source: text("source").notNull(),
+  items: text("items").notNull(),
+  tokensUsed: integer("tokens_used"),
+  generatedAt: text("generated_at").notNull(),
+});
