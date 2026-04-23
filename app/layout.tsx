@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { auth } from "@/auth";
 import { AppShell } from "@/components/layout/app-shell";
 import { getActiveAlerts } from "@/lib/queries";
 
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
   description: "Pilotage éditorial CFI pour les équipes communication.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -21,11 +22,14 @@ export default function RootLayout({
   } catch {
     alertsCount = 0;
   }
+  const session = await auth();
 
   return (
     <html lang="fr" className="h-full antialiased">
       <body className="min-h-full bg-page text-ink">
-        <AppShell alertsCount={alertsCount}>{children}</AppShell>
+        <AppShell alertsCount={alertsCount} user={session?.user ?? null}>
+          {children}
+        </AppShell>
       </body>
     </html>
   );

@@ -2,17 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { Session } from "next-auth";
 
+import { Avatar } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
+import { getRoleLabel } from "@/lib/auth/rbac";
 import { navigation, type NavItem } from "@/lib/mock-data";
 import { cx } from "@/lib/utils";
 
 type SidebarProps = {
   onNavigate?: () => void;
   alertsCount?: number;
+  user: Session["user"] | null;
 };
 
-export function Sidebar({ onNavigate, alertsCount = 0 }: SidebarProps) {
+export function Sidebar({ onNavigate, alertsCount = 0, user }: SidebarProps) {
   const pathname = usePathname();
   const sections: Array<NavItem["section"]> = ["Workspace", "Intelligence"];
 
@@ -104,17 +108,17 @@ export function Sidebar({ onNavigate, alertsCount = 0 }: SidebarProps) {
             <div className="h-full w-[62%] bg-sky" />
           </div>
         </div>
-        <div className="flex items-center gap-2.5">
-          <span className="grid h-8 w-8 place-items-center rounded-full bg-purple text-[12px] font-bold text-ink">
-            LR
-          </span>
-          <div className="flex flex-col">
-            <span className="text-[12px] font-bold">Laure Reymond</span>
-            <span className="text-[10px] uppercase tracking-[0.08em] text-cream/55">
-              Resp. Communication
-            </span>
+        {user ? (
+          <div className="flex items-center gap-2.5">
+            <Avatar name={user.name || user.email || "Utilisateur"} tone="purple" />
+            <div className="flex flex-col">
+              <span className="text-[12px] font-bold">{user.name || user.email}</span>
+              <span className="text-[10px] uppercase tracking-[0.08em] text-cream/55">
+                {getRoleLabel(user.role)}
+              </span>
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
     </aside>
   );

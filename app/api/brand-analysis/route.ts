@@ -14,12 +14,16 @@ import {
   type LLMBrandAnalysis,
 } from "@/lib/brand-guardian-prompt";
 import { hasRequestyKey, requestyComplete, RequestyError } from "@/lib/requesty";
+import { requirePermission } from "@/lib/auth/session";
 
 export const runtime = "nodejs";
 
 const BRAND_ANALYSIS_MODEL = "deepseek/deepseek-chat";
 
 export async function POST(request: Request) {
+  const access = await requirePermission("review.comment");
+  if (access.error) return access.error;
+
   const body = (await request.json().catch(() => ({}))) as Partial<BrandAnalysisRequest>;
   const mock = createBrandAnalysisResponse(body);
 

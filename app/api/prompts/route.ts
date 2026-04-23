@@ -6,6 +6,7 @@ import {
   listPrompts,
 } from "@/lib/data/prompts";
 import { parsePromptCreatePayload } from "@/app/api/prompts/payload";
+import { requirePermission } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,9 @@ export function GET() {
 }
 
 export async function POST(request: Request) {
+  const access = await requirePermission("content.write");
+  if (access.error) return access.error;
+
   let payload: unknown;
   try {
     payload = await request.json();

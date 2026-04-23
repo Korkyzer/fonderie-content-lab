@@ -1,3 +1,5 @@
+import bcrypt from "bcrypt";
+
 import { db, sqlite } from "@/db/index";
 import {
   alumni,
@@ -13,6 +15,7 @@ import {
   personas,
   prompts,
   references,
+  users,
 } from "@/db/schema";
 
 function serializeList(...items: string[]): string {
@@ -20,6 +23,10 @@ function serializeList(...items: string[]): string {
 }
 
 async function main() {
+  const seedPassword = process.env.AUTH_SEED_PASSWORD ?? "CFI2026!";
+  const passwordHash = await bcrypt.hash(seedPassword, 10);
+
+  db.delete(users).run();
   db.delete(contentItems).run();
   db.delete(brandRules).run();
   db.delete(kanbanCards).run();
@@ -33,6 +40,37 @@ async function main() {
   db.delete(alumni).run();
   db.delete(partners).run();
   db.delete(references).run();
+
+  db.insert(users).values([
+    {
+      name: "Laure Reymond",
+      email: "laure.reymond@cfi.local",
+      passwordHash,
+      role: "admin",
+      avatarUrl: null,
+    },
+    {
+      name: "Mathilde Dupont",
+      email: "mathilde.dupont@cfi.local",
+      passwordHash,
+      role: "editor",
+      avatarUrl: null,
+    },
+    {
+      name: "Thomas Martin",
+      email: "thomas.martin@cfi.local",
+      passwordHash,
+      role: "editor",
+      avatarUrl: null,
+    },
+    {
+      name: "Claire Bernard",
+      email: "claire.bernard@cfi.local",
+      passwordHash,
+      role: "reviewer",
+      avatarUrl: null,
+    },
+  ]).run();
 
   db.insert(contentItems).values([
     {
