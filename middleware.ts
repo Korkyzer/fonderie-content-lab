@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const AUTH_BYPASS_ENABLED = process.env.AUTH_BYPASS === "true";
+
 function hasSessionCookie(request: NextRequest) {
   return Boolean(
     request.cookies.get("authjs.session-token")?.value ||
@@ -8,6 +10,10 @@ function hasSessionCookie(request: NextRequest) {
 }
 
 export default function middleware(request: NextRequest) {
+  if (AUTH_BYPASS_ENABLED) {
+    return NextResponse.next();
+  }
+
   const isLoggedIn = hasSessionCookie(request);
   const isLoginPage = request.nextUrl.pathname === "/login";
 

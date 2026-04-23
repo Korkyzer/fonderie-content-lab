@@ -1,10 +1,24 @@
 import NextAuth from "next-auth";
+import type { Session } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 import { verifyPassword } from "@/lib/auth/password";
 import { getUserByEmail } from "@/lib/auth/users";
 
-export const { handlers, auth } = NextAuth({
+const AUTH_BYPASS_ENABLED = process.env.AUTH_BYPASS === "true";
+
+const AUTH_BYPASS_SESSION: Session = {
+  user: {
+    id: "auth-bypass-dev",
+    name: "Arthur (Dev)",
+    email: "dev@fonderie.local",
+    role: "admin",
+    avatarUrl: null,
+  },
+  expires: "2999-12-31T23:59:59.999Z",
+};
+
+const nextAuth = NextAuth({
   secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
@@ -55,3 +69,16 @@ export const { handlers, auth } = NextAuth({
     },
   },
 });
+
+export const { handlers, signIn, signOut } = nextAuth;
+
+export const auth = (async (...args: [] | Parameters<typeof nextAuth.auth>) => {
+  if (AUTH_BYPASS_ENABLED && args.length === 0) {
+    return AUTH_BYPASS_SESSION;
+  }
+
+  return nextAuth.auth(...(args as Parameters<typeof nextAuth.auth>));
+}) as {
+  (): Promise<Session | null>;
+  (...args: Parameters<typeof nextAuth.auth>): ReturnType<typeof nextAuth.auth>;
+};
