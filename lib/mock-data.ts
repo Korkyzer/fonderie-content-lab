@@ -41,6 +41,13 @@ export const navigation: NavItem[] = [
     kbd: "C",
   },
   {
+    href: "/auto-publish",
+    label: "Auto-publication",
+    section: "Workspace",
+    icon: "play",
+    kbd: "U",
+  },
+  {
     href: "/competitive",
     label: "Veille concurrentielle",
     section: "Intelligence",
@@ -101,6 +108,13 @@ export const pageMeta: Record<
     eyebrow: "Calendrier",
     description:
       "Vue mensuelle des publications, événements CFI et moments de l’année scolaire.",
+  },
+  "/auto-publish": {
+    crumb: "Auto-publish",
+    title: "Publication automatique par canal",
+    eyebrow: "Distribution",
+    description:
+      "Configurez les canaux qui publieront automatiquement les contenus planifiés.",
   },
   "/competitive": {
     crumb: "Veille",
