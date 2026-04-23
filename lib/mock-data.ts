@@ -48,6 +48,13 @@ export const navigation: NavItem[] = [
     kbd: "U",
   },
   {
+    href: "/auto-publish",
+    label: "Auto-publication",
+    section: "Workspace",
+    icon: "play",
+    kbd: "O",
+  },
+  {
     href: "/competitive",
     label: "Veille concurrentielle",
     section: "Intelligence",
@@ -122,6 +129,13 @@ export const pageMeta: Record<
     eyebrow: "Réseau",
     description:
       "Annuaire alumni, partenaires entreprises, appels à projets et témoignages prêts à activer.",
+  },
+  "/auto-publish": {
+    crumb: "Auto-publish",
+    title: "Publication automatique par canal",
+    eyebrow: "Distribution",
+    description:
+      "Configurez les canaux qui publieront automatiquement les contenus planifiés.",
   },
   "/competitive": {
     crumb: "Veille",

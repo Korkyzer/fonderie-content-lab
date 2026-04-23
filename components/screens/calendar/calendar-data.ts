@@ -23,6 +23,7 @@ export type CalendarContentStatus =
 export type CalendarEntry = {
   id: string;
   day: number;
+  dateIso?: string;
   label: string;
   tone: CalendarChipTone;
   type: string;
