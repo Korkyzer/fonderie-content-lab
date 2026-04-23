@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Pill } from "@/components/ui/pill";
+import { ExportDropdown } from "@/components/export/export-dropdown";
 import type {
   BackstageStep,
   GenerateResponse,
@@ -195,6 +196,10 @@ export function GeneratorClient({
   };
 
   const estimatedCostEUR = tokenUsage ? (tokenUsage / 1000) * 0.012 : null;
+  const exportTitle = `Reel JPO · ${formation} · variante ${variant?.id ?? "A"}`;
+  const exportContent = variant
+    ? `${variant.hook}\n\n${variant.caption}\n\n${variant.hashtags.join(" ")}`
+    : "";
 
   return (
     <div className="grid gap-4 xl:grid-cols-[0.9fr_1.6fr_0.85fr]">
@@ -457,6 +462,54 @@ export function GeneratorClient({
                   <Button variant="primary" icon={<Icon name="check" size={14} />}>
                     Envoyer en production
                   </Button>
+                  {variant ? (
+                    <ExportDropdown
+                      options={[
+                        {
+                          id: "pdf",
+                          label: "Exporter en PDF",
+                          endpoint: "/api/export/pdf",
+                          body: {
+                            title: exportTitle,
+                            content: exportContent,
+                            author: "Studio Content Lab",
+                            platform: platformMeta.label,
+                            persona,
+                            createdAt: generation.generatedAt,
+                            brandScore: variant.score,
+                            metadata: {
+                              Brief: generation.briefEcho,
+                              Formation: formation,
+                              "Style visuel": visualStyle,
+                              "Ton éditorial": tone,
+                              "Durée cible": duration,
+                            },
+                          },
+                        },
+                        {
+                          id: "docx",
+                          label: "Exporter en DOCX",
+                          endpoint: "/api/export/docx",
+                          body: {
+                            title: exportTitle,
+                            content: exportContent,
+                            author: "Studio Content Lab",
+                            platform: platformMeta.label,
+                            persona,
+                            createdAt: generation.generatedAt,
+                            brandScore: variant.score,
+                            metadata: {
+                              Brief: generation.briefEcho,
+                              Formation: formation,
+                              "Style visuel": visualStyle,
+                              "Ton éditorial": tone,
+                              "Durée cible": duration,
+                            },
+                          },
+                        },
+                      ]}
+                    />
+                  ) : null}
                   <Link
                     href={{
                       pathname: "/brand-guardian",

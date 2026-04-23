@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Panel } from "@/components/ui/panel";
+import { ExportDropdown } from "@/components/export/export-dropdown";
 import {
   Placeholder,
   type PlaceholderTone,
@@ -144,6 +145,19 @@ export function PromptsLibrary({ prompts }: Props) {
         title={`${items.length} templates · ${categories.length - 1} catégories`}
         description="Base éditoriale réutilisable pour recrutement, événements, alumni et contenus campus."
       />
+
+      <div className="flex justify-end">
+        <ExportDropdown
+          options={[
+            {
+              id: "prompts-csv",
+              label: "Exporter la bibliothèque en CSV",
+              endpoint: "/api/export/csv",
+              body: { scope: "prompts" },
+            },
+          ]}
+        />
+      </div>
 
       <Panel className="space-y-4">
         <div className="flex flex-wrap items-center gap-3">
