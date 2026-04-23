@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { asc } from "drizzle-orm";
 
 import { db } from "@/db/index";
-import { kanbanCards } from "@/db/schema";
+import { kanbanCards, kanbanTransitions } from "@/db/schema";
 import { requirePermission } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +15,8 @@ const VALID_COLUMN_IDS = new Set([
   "validated",
   "published",
 ]);
+
+const VALID_PRIORITIES = new Set(["urgent", "normal", "can_wait"]);
 
 export async function GET() {
   const cards = db
@@ -37,6 +39,9 @@ export async function POST(request: Request) {
     assignee: string;
     dueDate: string;
     columnId: string;
+    priority: string;
+    reviewerId: string | null;
+    deadline: string | null;
   }>;
 
   try {
@@ -65,6 +70,17 @@ export async function POST(request: Request) {
     );
   }
 
+  const priority = body.priority?.trim() || "normal";
+  if (!VALID_PRIORITIES.has(priority)) {
+    return NextResponse.json(
+      { error: "Priorité invalide." },
+      { status: 400 },
+    );
+  }
+
+  const assignee = body.assignee?.trim() || "Laure Reymond";
+  const now = new Date().toISOString();
+
   const inserted = db
     .insert(kanbanCards)
     .values({
@@ -72,13 +88,29 @@ export async function POST(request: Request) {
       platform: body.platform?.trim() || "Instagram",
       persona: body.persona?.trim() || "Lycéens 16-20",
       campaign: body.campaign?.trim() || "JPO Mai 2026",
-      assignee: body.assignee?.trim() || "Laure Reymond",
-      dueDate: body.dueDate || new Date().toISOString(),
+      assignee,
+      dueDate: body.dueDate || now,
       columnId,
       aiProgress: 0,
+      priority,
+      reviewerId: body.reviewerId ?? null,
+      deadline: body.deadline ?? null,
     })
     .returning()
     .all();
 
-  return NextResponse.json({ card: inserted[0] }, { status: 201 });
+  const card = inserted[0];
+  if (card) {
+    db.insert(kanbanTransitions)
+      .values({
+        cardId: card.id,
+        fromStatus: null,
+        toStatus: columnId,
+        user: assignee,
+        createdAt: now,
+      })
+      .run();
+  }
+
+  return NextResponse.json({ card }, { status: 201 });
 }

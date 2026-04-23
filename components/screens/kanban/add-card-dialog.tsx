@@ -4,7 +4,12 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import { COLUMN_DEFS } from "./types";
+import {
+  COLUMN_DEFS,
+  PRIORITY_LABEL,
+  PRIORITY_OPTIONS,
+  type KanbanPriority,
+} from "./types";
 
 type AddCardDialogProps = {
   open: boolean;
@@ -18,6 +23,9 @@ type AddCardDialogProps = {
     assignee: string;
     dueDate: string;
     columnId: string;
+    priority: KanbanPriority;
+    reviewerId: string | null;
+    deadline: string | null;
   }) => Promise<void> | void;
 };
 
@@ -70,6 +78,9 @@ export function AddCardDialog({
     return d.toISOString().slice(0, 10);
   });
   const [columnId, setColumnId] = useState(defaultColumn);
+  const [priority, setPriority] = useState<KanbanPriority>("normal");
+  const [reviewer, setReviewer] = useState("");
+  const [deadline, setDeadline] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   if (!open) return null;
@@ -122,6 +133,11 @@ export function AddCardDialog({
                 assignee,
                 dueDate: new Date(`${dueDate}T10:00:00`).toISOString(),
                 columnId,
+                priority,
+                reviewerId: reviewer.trim() || null,
+                deadline: deadline
+                  ? new Date(`${deadline}T18:00:00`).toISOString()
+                  : null,
               });
               setTitle("");
               onClose();
@@ -230,6 +246,50 @@ export function AddCardDialog({
               />
             </label>
           </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <label className="flex flex-col gap-1">
+              <span className={labelClass}>Priorité</span>
+              <select
+                className={fieldClass}
+                value={priority}
+                onChange={(event) =>
+                  setPriority(event.target.value as KanbanPriority)
+                }
+              >
+                {PRIORITY_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {PRIORITY_LABEL[option]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className={labelClass}>Reviewer (optionnel)</span>
+              <select
+                className={fieldClass}
+                value={reviewer}
+                onChange={(event) => setReviewer(event.target.value)}
+              >
+                <option value="">Aucun</option>
+                {ASSIGNEES.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <label className="flex flex-col gap-1">
+            <span className={labelClass}>Deadline SLA (optionnel)</span>
+            <input
+              type="date"
+              className={fieldClass}
+              value={deadline}
+              onChange={(event) => setDeadline(event.target.value)}
+            />
+          </label>
 
           <div className="mt-2 flex items-center justify-end gap-2">
             <Button
