@@ -102,7 +102,7 @@ export function CompetitiveView({ competitors }: CompetitiveViewProps) {
             Ajouter concurrent
           </Button>
           <Button variant="primary" icon={<Icon name="sparkle" size={14} />}>
-            Synthèse IA
+            Actualiser l’analyse
           </Button>
         </div>
       </header>
