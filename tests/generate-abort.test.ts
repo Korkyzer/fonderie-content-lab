@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { afterEach, beforeEach, test } from "node:test";
 
 import { POST } from "../app/api/generate/route";
+import { requestyComplete, requestyStream } from "../lib/requesty";
 
 const REQUEST_BODY = {
   brief: "Préparer trois variantes pour une journée portes ouvertes",
@@ -56,6 +57,46 @@ function createAbortableFetchMock() {
   return { fetchMock, signalSeen };
 }
 
+function createSlowBodyFetchMock(body: string, delayMs: number) {
+  return async (_input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+    const signal = init?.signal;
+    assert.ok(signal instanceof AbortSignal);
+
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        let settled = false;
+        const encoder = new TextEncoder();
+        const state: { timeout?: NodeJS.Timeout } = {};
+        const cleanup = () => {
+          if (state.timeout) clearTimeout(state.timeout);
+          signal.removeEventListener("abort", abortBody);
+        };
+        const abortBody = () => {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          controller.error(new DOMException("Aborted", "AbortError"));
+        };
+        state.timeout = setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          controller.enqueue(encoder.encode(body));
+          controller.close();
+        }, delayMs);
+
+        if (signal.aborted) abortBody();
+        else signal.addEventListener("abort", abortBody, { once: true });
+      },
+    });
+
+    return new Response(stream, {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  };
+}
+
 test("non-streaming generate aborts the outbound Requesty request", async () => {
   const { fetchMock, signalSeen } = createAbortableFetchMock();
   globalThis.fetch = fetchMock as typeof fetch;
@@ -105,4 +146,37 @@ test("streaming generate aborts the outbound Requesty request", async () => {
   assert.equal(outboundSignal.aborted, true);
   assert.equal(response.status, 200);
   assert.match(await response.text(), /event: done/);
+});
+
+test("requestyComplete keeps timeout active while reading the response body", async () => {
+  const body = JSON.stringify({
+    choices: [{ message: { content: "ok" } }],
+  });
+  globalThis.fetch = createSlowBodyFetchMock(body, 50) as typeof fetch;
+
+  await assert.rejects(
+    () =>
+      requestyComplete([{ role: "user", content: "brief" }], {
+        timeoutMs: 10,
+        maxRetries: 0,
+      }),
+    /Requesty timeout après 10ms/,
+  );
+});
+
+test("requestyStream keeps timeout active while reading the response body", async () => {
+  const body = 'data: {"choices":[{"delta":{"content":"ok"}}]}\n\n';
+  globalThis.fetch = createSlowBodyFetchMock(body, 50) as typeof fetch;
+
+  await assert.rejects(
+    async () => {
+      for await (const chunk of requestyStream([{ role: "user", content: "brief" }], {
+        timeoutMs: 10,
+        maxRetries: 0,
+      })) {
+        void chunk;
+      }
+    },
+    /Requesty timeout après 10ms/,
+  );
 });

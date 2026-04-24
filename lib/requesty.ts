@@ -58,15 +58,43 @@ function getApiKey(): string {
 async function requestyFetch(
   body: Record<string, unknown>,
   opts: RequestyOptions,
-): Promise<Response> {
+): Promise<{
+  response: Response;
+  release: () => void;
+  toRequestyError: (error: unknown) => RequestyError;
+}> {
   const apiKey = getApiKey();
   const timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let timedOut = false;
+  const timer = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, timeoutMs);
   let abortedByCaller = false;
   const abortFromCaller = () => {
     abortedByCaller = true;
     controller.abort();
+  };
+
+  const release = () => {
+    clearTimeout(timer);
+    opts.signal?.removeEventListener("abort", abortFromCaller);
+  };
+  const toRequestyError = (error: unknown) => {
+    if (error instanceof RequestyError) return error;
+    if (error instanceof DOMException && error.name === "AbortError") {
+      if (abortedByCaller || opts.signal?.aborted) {
+        return new RequestyError("Requesty requête annulée par le client", { retryable: false });
+      }
+      if (timedOut) {
+        return new RequestyError(`Requesty timeout après ${timeoutMs}ms`, { retryable: true });
+      }
+    }
+    return new RequestyError(
+      `Requesty network error: ${error instanceof Error ? error.message : String(error)}`,
+      { retryable: true },
+    );
   };
 
   if (opts.signal) {
@@ -94,23 +122,10 @@ async function requestyFetch(
       );
     }
 
-    // TODO M12: keep timeout active during body consumption.
-    return response;
+    return { response, release, toRequestyError };
   } catch (error) {
-    if (error instanceof RequestyError) throw error;
-    if (error instanceof DOMException && error.name === "AbortError") {
-      if (abortedByCaller || opts.signal?.aborted) {
-        throw new RequestyError("Requesty requête annulée par le client", { retryable: false });
-      }
-      throw new RequestyError(`Requesty timeout après ${timeoutMs}ms`, { retryable: true });
-    }
-    throw new RequestyError(
-      `Requesty network error: ${error instanceof Error ? error.message : String(error)}`,
-      { retryable: true },
-    );
-  } finally {
-    clearTimeout(timer);
-    opts.signal?.removeEventListener("abort", abortFromCaller);
+    release();
+    throw toRequestyError(error);
   }
 }
 
@@ -152,13 +167,21 @@ export async function requestyComplete(
     body.response_format = { type: "json_object" };
   }
 
-  const response = await withRetry(() => requestyFetch(body, opts), maxRetries);
-  const json = (await response.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
-    usage?: RequestyUsage;
-  };
-  const text = json.choices?.[0]?.message?.content ?? "";
-  return { text, usage: json.usage };
+  return await withRetry(async () => {
+    const request = await requestyFetch(body, opts);
+    try {
+      const json = (await request.response.json()) as {
+        choices?: Array<{ message?: { content?: string } }>;
+        usage?: RequestyUsage;
+      };
+      const text = json.choices?.[0]?.message?.content ?? "";
+      return { text, usage: json.usage };
+    } catch (error) {
+      throw request.toRequestyError(error);
+    } finally {
+      request.release();
+    }
+  }, maxRetries);
 }
 
 export async function* requestyStream(
@@ -179,12 +202,13 @@ export async function* requestyStream(
     body.response_format = { type: "json_object" };
   }
 
-  const response = await withRetry(() => requestyFetch(body, opts), maxRetries);
-  if (!response.body) {
+  const request = await withRetry(() => requestyFetch(body, opts), maxRetries);
+  if (!request.response.body) {
+    request.release();
     throw new RequestyError("Requesty: réponse sans body", { retryable: true });
   }
 
-  const reader = response.body.getReader();
+  const reader = request.response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
   let fullText = "";
@@ -226,10 +250,13 @@ export async function* requestyStream(
         }
       }
     }
+  } catch (error) {
+    throw request.toRequestyError(error);
   } finally {
     try {
       reader.releaseLock();
     } catch {}
+    request.release();
   }
 
   yield { type: "done", fullText, usage };
