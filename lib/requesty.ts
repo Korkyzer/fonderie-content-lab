@@ -63,10 +63,15 @@ async function requestyFetch(
   const timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let abortedByCaller = false;
+  const abortFromCaller = () => {
+    abortedByCaller = true;
+    controller.abort();
+  };
 
   if (opts.signal) {
-    if (opts.signal.aborted) controller.abort();
-    else opts.signal.addEventListener("abort", () => controller.abort(), { once: true });
+    if (opts.signal.aborted) abortFromCaller();
+    else opts.signal.addEventListener("abort", abortFromCaller, { once: true });
   }
 
   try {
@@ -89,10 +94,14 @@ async function requestyFetch(
       );
     }
 
+    // TODO M12: keep timeout active during body consumption.
     return response;
   } catch (error) {
     if (error instanceof RequestyError) throw error;
     if (error instanceof DOMException && error.name === "AbortError") {
+      if (abortedByCaller || opts.signal?.aborted) {
+        throw new RequestyError("Requesty requête annulée par le client", { retryable: false });
+      }
       throw new RequestyError(`Requesty timeout après ${timeoutMs}ms`, { retryable: true });
     }
     throw new RequestyError(
@@ -101,6 +110,7 @@ async function requestyFetch(
     );
   } finally {
     clearTimeout(timer);
+    opts.signal?.removeEventListener("abort", abortFromCaller);
   }
 }
 

@@ -104,10 +104,10 @@ export async function POST(req: Request) {
   }
 
   if (!wantsStream) {
-    return handleNonStreaming(request);
+    return handleNonStreaming(request, req.signal);
   }
 
-  return handleStreaming(request);
+  return handleStreaming(request, req.signal);
 }
 
 function mockStream(request: GenerateRequest): Response {
@@ -135,12 +135,13 @@ function mockStream(request: GenerateRequest): Response {
   });
 }
 
-async function handleNonStreaming(request: GenerateRequest): Promise<Response> {
+async function handleNonStreaming(request: GenerateRequest, signal?: AbortSignal): Promise<Response> {
   try {
     let fullText = "";
     const messages = buildGeneratorMessages(request);
     for await (const chunk of requestyStream(messages, {
       responseFormat: "json_object",
+      signal,
     })) {
       if (chunk.type === "delta") fullText += chunk.text;
     }
@@ -156,7 +157,7 @@ async function handleNonStreaming(request: GenerateRequest): Promise<Response> {
   }
 }
 
-function handleStreaming(request: GenerateRequest): Response {
+function handleStreaming(request: GenerateRequest, signal?: AbortSignal): Response {
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       let fullText = "";
@@ -166,6 +167,7 @@ function handleStreaming(request: GenerateRequest): Response {
         const messages = buildGeneratorMessages(request);
         for await (const chunk of requestyStream(messages, {
           responseFormat: "json_object",
+          signal,
         })) {
           if (chunk.type === "delta") {
             fullText += chunk.text;
