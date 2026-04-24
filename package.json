@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
+    "dev:persist": "./scripts/dev-screen.sh start",
+    "dev:persist:stop": "./scripts/dev-screen.sh stop",
+    "dev:persist:status": "./scripts/dev-screen.sh status",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
