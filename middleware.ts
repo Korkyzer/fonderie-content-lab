@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const AUTH_BYPASS_ENABLED = process.env.AUTH_BYPASS === "true";
+const AUTH_BYPASS_ENABLED =
+  process.env.AUTH_BYPASS === "true" && process.env.NODE_ENV !== "production";
 
 function hasSessionCookie(request: NextRequest) {
   return Boolean(

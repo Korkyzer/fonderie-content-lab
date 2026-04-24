@@ -5,7 +5,8 @@ import Credentials from "next-auth/providers/credentials";
 import { verifyPassword } from "@/lib/auth/password";
 import { getUserByEmail } from "@/lib/auth/users";
 
-const AUTH_BYPASS_ENABLED = process.env.AUTH_BYPASS === "true";
+const AUTH_BYPASS_ENABLED =
+  process.env.AUTH_BYPASS === "true" && process.env.NODE_ENV !== "production";
 
 const AUTH_BYPASS_SESSION: Session = {
   user: {
