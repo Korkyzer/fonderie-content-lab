@@ -11,10 +11,21 @@ export async function POST(
 ) {
   const { id: raw } = await context.params;
   const id = parsePromptId(raw);
-  if (id === null)
+  if (id === null) {
     return NextResponse.json({ error: "id invalide" }, { status: 400 });
-  const prompt = toggleFavorite(id);
-  if (!prompt)
-    return NextResponse.json({ error: "prompt introuvable" }, { status: 404 });
-  return NextResponse.json({ prompt });
+  }
+
+  try {
+    const prompt = toggleFavorite(id);
+    if (!prompt) {
+      return NextResponse.json({ error: "prompt introuvable" }, { status: 404 });
+    }
+    return NextResponse.json({ prompt });
+  } catch (error) {
+    console.error("Failed to toggle favorite", error);
+    return NextResponse.json(
+      { error: "Impossible de mettre à jour le favori" },
+      { status: 500 },
+    );
+  }
 }

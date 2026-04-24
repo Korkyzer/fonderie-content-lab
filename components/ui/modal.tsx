@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useId, type ReactNode } from "react";
 
 import { cx } from "@/lib/utils";
 
@@ -29,6 +29,8 @@ export function Modal({
   footer,
   size = "md",
 }: ModalProps) {
+  const titleId = useId();
+
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
@@ -44,6 +46,7 @@ export function Modal({
     <div
       role="dialog"
       aria-modal="true"
+      aria-labelledby={title ? titleId : undefined}
       className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
@@ -55,7 +58,9 @@ export function Modal({
         onClick={(event) => event.stopPropagation()}
       >
         <header className="mb-4 flex items-start justify-between gap-4">
-          <h2 className="text-b2 font-display uppercase">{title}</h2>
+          <h2 id={title ? titleId : undefined} className="text-b2 font-display uppercase">
+            {title}
+          </h2>
           <button
             type="button"
             onClick={onClose}

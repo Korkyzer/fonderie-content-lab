@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +41,7 @@ function splitVariables(value: string): string[] {
 }
 
 export function PromptsLibrary({ prompts }: Props) {
+  const router = useRouter();
   const [items, setItems] = useState<Prompt[]>(prompts);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string>("all");
@@ -138,7 +140,14 @@ export function PromptsLibrary({ prompts }: Props) {
       platform: prompt.platform,
       audience: prompt.audience,
     });
-    window.location.href = `/generator?${params.toString()}`;
+    router.push(`/generator?${params.toString()}`);
+  }
+
+  function openInGeneratorFromGrid(prompt: Prompt) {
+    const params = new URLSearchParams({
+      prompt: prompt.slug,
+    });
+    router.push(`/generator?${params.toString()}`);
   }
 
   return (
@@ -283,6 +292,7 @@ export function PromptsLibrary({ prompts }: Props) {
                   copied={copiedId === prompt.id}
                   onOpen={() => setOpenId(prompt.id)}
                   onCopy={() => copyPrompt(prompt)}
+                  onUse={() => openInGeneratorFromGrid(prompt)}
                   onToggleFavorite={() => toggleFavorite(prompt.id)}
                 />
               ))}
@@ -349,6 +359,7 @@ type CardProps = {
   copied: boolean;
   onOpen: () => void;
   onCopy: () => void;
+  onUse?: () => void;
   onToggleFavorite: () => void;
 };
 
@@ -358,6 +369,7 @@ function PromptGridCard({
   copied,
   onOpen,
   onCopy,
+  onUse,
   onToggleFavorite,
 }: CardProps) {
   const tone = TONE_MAP[prompt.tone] ?? "purple";
@@ -422,11 +434,7 @@ function PromptGridCard({
           variant="primary"
           size="sm"
           icon={<Icon name="sparkle" size={12} />}
-          onClick={() => {
-            window.location.href = `/generator?prompt=${encodeURIComponent(
-              prompt.slug,
-            )}`;
-          }}
+          onClick={onUse}
         >
           Utiliser
         </Button>

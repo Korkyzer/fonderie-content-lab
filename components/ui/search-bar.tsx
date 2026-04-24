@@ -11,11 +11,19 @@ type SearchBarProps = InputHTMLAttributes<HTMLInputElement> & {
 };
 
 export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
-  function SearchBar({ shortcut = "⌘K", className, ...rest }, ref) {
+  function SearchBar(
+    {
+      shortcut = "⌘K",
+      className,
+      "aria-label": ariaLabel = "Rechercher dans Content Lab",
+      ...rest
+    },
+    ref,
+  ) {
     return (
       <label
         className={cx(
-          "flex w-[260px] items-center gap-2 rounded-sm border border-ink/10 bg-cream px-3 py-2 text-[13px] transition-colors focus-within:border-ink hover:border-ink/30",
+          "flex w-full sm:w-[260px] items-center gap-2 rounded-sm border border-ink/10 bg-cream px-3 py-2 text-[13px] transition-colors focus-within:border-ink hover:border-ink/30",
           className,
         )}
       >
@@ -28,6 +36,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
           placeholder="Rechercher contenu, brief, persona…"
           className="flex-1 bg-transparent outline-none placeholder:text-ink/50"
           {...rest}
+          aria-label={ariaLabel}
         />
         {shortcut ? (
           <kbd className="rounded-[3px] bg-ink/8 px-1.5 py-0.5 font-mono text-[10px] text-ink/70">

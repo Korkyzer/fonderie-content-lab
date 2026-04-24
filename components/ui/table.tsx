@@ -64,24 +64,44 @@ export function Table<T>({
             {columns.map((column) => (
               <th
                 key={column.id}
-                onClick={() => onSort(column)}
+                scope="col"
+                aria-sort={
+                  column.sortable
+                    ? sortBy === column.id
+                      ? sortDir === "asc"
+                        ? "ascending"
+                        : "descending"
+                      : "none"
+                    : undefined
+                }
                 className={cx(
                   "px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-ink/70",
                   column.align === "right" && "text-right",
                   column.align === "center" && "text-center",
                   column.align !== "right" && column.align !== "center" && "text-left",
-                  column.sortable && "cursor-pointer hover:text-ink",
                 )}
               >
-                <span className="inline-flex items-center gap-1">
-                  {column.header}
-                  {column.sortable && sortBy === column.id ? (
-                    <Icon
-                      name={sortDir === "asc" ? "up" : "down"}
-                      size={10}
-                    />
-                  ) : null}
-                </span>
+                {column.sortable ? (
+                  <button
+                    type="button"
+                    onClick={() => onSort(column)}
+                    className={cx(
+                      "inline-flex w-full items-center gap-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple hover:text-ink",
+                      column.align === "right" && "justify-end",
+                      column.align === "center" && "justify-center",
+                    )}
+                  >
+                    <span>{column.header}</span>
+                    {sortBy === column.id ? (
+                      <Icon
+                        name={sortDir === "asc" ? "up" : "down"}
+                        size={10}
+                      />
+                    ) : null}
+                  </button>
+                ) : (
+                  <span className="inline-flex items-center gap-1">{column.header}</span>
+                )}
               </th>
             ))}
           </tr>

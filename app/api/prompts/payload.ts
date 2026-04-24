@@ -2,20 +2,17 @@ import { slugify, type NewPrompt } from "@/lib/data/prompts";
 
 type ParseResult<T> = { data: T } | { error: string };
 
-const TEXT_FIELDS = [
+const REQUIRED_TEXT_FIELDS = [
   "title",
   "description",
   "category",
   "audience",
   "platform",
   "tone",
-  "variables",
   "body",
-  "author",
-  "slug",
 ] as const;
 
-const NUMBER_FIELDS = ["rating", "monthlyUsage"] as const;
+const INTEGER_FIELDS = ["monthlyUsage"] as const;
 
 const BOOLEAN_FIELDS = ["favorite"] as const;
 
@@ -23,24 +20,44 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function readTextField(
+function readOptionalTextField(
   payload: Record<string, unknown>,
-  field: (typeof TEXT_FIELDS)[number],
-): string | undefined {
+  field: string,
+): string | null | undefined {
   const value = payload[field];
   if (value === undefined) return undefined;
-  if (typeof value !== "string") return undefined;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : undefined;
+  if (typeof value !== "string") return null;
+  return value.trim();
 }
 
-function readNumberField(
+function readRequiredTextField(
   payload: Record<string, unknown>,
-  field: (typeof NUMBER_FIELDS)[number],
+  field: (typeof REQUIRED_TEXT_FIELDS)[number],
+): string | undefined {
+  const value = readOptionalTextField(payload, field);
+  return typeof value === "string" && value.length > 0 ? value : undefined;
+}
+
+function readRatingField(
+  payload: Record<string, unknown>,
+  field: "rating",
 ): number | undefined {
   const value = payload[field];
   if (value === undefined) return undefined;
-  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 5
+    ? value
+    : undefined;
+}
+
+function readIntegerField(
+  payload: Record<string, unknown>,
+  field: (typeof INTEGER_FIELDS)[number],
+): number | undefined {
+  const value = payload[field];
+  if (value === undefined) return undefined;
+  return typeof value === "number" && Number.isInteger(value) && value >= 0
+    ? value
+    : undefined;
 }
 
 function readBooleanField(
@@ -57,8 +74,8 @@ function invalidFieldMessage(field: string): string {
 }
 
 export function parsePromptId(value: string): number | null {
-  const id = Number.parseInt(value, 10);
-  return Number.isFinite(id) ? id : null;
+  if (!/^[1-9]\d*$/.test(value)) return null;
+  return Number.parseInt(value, 10);
 }
 
 export function parsePromptCreatePayload(
@@ -69,34 +86,33 @@ export function parsePromptCreatePayload(
     return { error: "Payload JSON invalide" };
   }
 
-  const title = readTextField(payload, "title");
+  const title = readRequiredTextField(payload, "title");
   if (!title) return { error: invalidFieldMessage("title") };
 
-  const description = readTextField(payload, "description");
+  const description = readRequiredTextField(payload, "description");
   if (!description) return { error: invalidFieldMessage("description") };
 
-  const category = readTextField(payload, "category");
+  const category = readRequiredTextField(payload, "category");
   if (!category) return { error: invalidFieldMessage("category") };
 
-  const audience = readTextField(payload, "audience");
+  const audience = readRequiredTextField(payload, "audience");
   if (!audience) return { error: invalidFieldMessage("audience") };
 
-  const platform = readTextField(payload, "platform");
+  const platform = readRequiredTextField(payload, "platform");
   if (!platform) return { error: invalidFieldMessage("platform") };
 
-  const tone = readTextField(payload, "tone");
+  const tone = readRequiredTextField(payload, "tone");
   if (!tone) return { error: invalidFieldMessage("tone") };
 
-  const body = readTextField(payload, "body");
+  const body = readRequiredTextField(payload, "body");
   if (!body) return { error: invalidFieldMessage("body") };
 
-  const rating = payload.rating === undefined ? 4.5 : readNumberField(payload, "rating");
+  const rating =
+    payload.rating === undefined ? 4.5 : readRatingField(payload, "rating");
   if (rating === undefined) return { error: invalidFieldMessage("rating") };
 
   const monthlyUsage =
-    payload.monthlyUsage === undefined
-      ? 0
-      : readNumberField(payload, "monthlyUsage");
+    payload.monthlyUsage === undefined ? 0 : readIntegerField(payload, "monthlyUsage");
   if (monthlyUsage === undefined) {
     return { error: invalidFieldMessage("monthlyUsage") };
   }
@@ -105,9 +121,27 @@ export function parsePromptCreatePayload(
     payload.favorite === undefined ? false : readBooleanField(payload, "favorite");
   if (favorite === undefined) return { error: invalidFieldMessage("favorite") };
 
+  const rawSlug = readOptionalTextField(payload, "slug");
+  if ("slug" in payload && (!rawSlug || rawSlug.length === 0)) {
+    return { error: invalidFieldMessage("slug") };
+  }
+
+  const rawAuthor = readOptionalTextField(payload, "author");
+  if ("author" in payload && (!rawAuthor || rawAuthor.length === 0)) {
+    return { error: invalidFieldMessage("author") };
+  }
+
+  const rawVariables = readOptionalTextField(payload, "variables");
+  if ("variables" in payload && rawVariables === null) {
+    return { error: invalidFieldMessage("variables") };
+  }
+
+  const slug = slugify(rawSlug && rawSlug.length > 0 ? rawSlug : title);
+  if (!slug) return { error: invalidFieldMessage("slug") };
+
   return {
     data: {
-      slug: readTextField(payload, "slug") ?? slugify(title),
+      slug,
       title,
       description,
       category,
@@ -116,9 +150,9 @@ export function parsePromptCreatePayload(
       tone,
       rating,
       monthlyUsage,
-      variables: readTextField(payload, "variables") ?? "",
+      variables: rawVariables ?? "",
       body,
-      author: readTextField(payload, "author") ?? "Équipe Fonderie",
+      author: rawAuthor ?? "Équipe Fonderie",
       favorite,
       createdAt: now,
       updatedAt: now,
@@ -135,16 +169,49 @@ export function parsePromptPatchPayload(
 
   const patch: Partial<NewPrompt> = {};
 
-  for (const field of TEXT_FIELDS) {
+  for (const field of REQUIRED_TEXT_FIELDS) {
     if (!(field in payload)) continue;
-    const value = readTextField(payload, field);
-    if (value === undefined) return { error: invalidFieldMessage(field) };
-    patch[field] = field === "slug" ? slugify(value) : value;
+    const value = readOptionalTextField(payload, field);
+    if (!value || value.length === 0) return { error: invalidFieldMessage(field) };
+    patch[field] = value;
   }
 
-  for (const field of NUMBER_FIELDS) {
+  if ("author" in payload) {
+    const value = readOptionalTextField(payload, "author");
+    if (!value || value.length === 0) {
+      return { error: invalidFieldMessage("author") };
+    }
+    patch.author = value;
+  }
+
+  if ("slug" in payload) {
+    const value = readOptionalTextField(payload, "slug");
+    if (!value || value.length === 0) {
+      return { error: invalidFieldMessage("slug") };
+    }
+
+    const slug = slugify(value);
+    if (!slug) return { error: invalidFieldMessage("slug") };
+    patch.slug = slug;
+  }
+
+  if ("variables" in payload) {
+    const value = readOptionalTextField(payload, "variables");
+    if (value === undefined || value === null) {
+      return { error: invalidFieldMessage("variables") };
+    }
+    patch.variables = value;
+  }
+
+  if ("rating" in payload) {
+    const value = readRatingField(payload, "rating");
+    if (value === undefined) return { error: invalidFieldMessage("rating") };
+    patch.rating = value;
+  }
+
+  for (const field of INTEGER_FIELDS) {
     if (!(field in payload)) continue;
-    const value = readNumberField(payload, field);
+    const value = readIntegerField(payload, field);
     if (value === undefined) return { error: invalidFieldMessage(field) };
     patch[field] = value;
   }
