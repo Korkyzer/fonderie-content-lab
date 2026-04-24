@@ -148,10 +148,12 @@ export function CommunityHub({
               </h2>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Link href="/generator?title=Annonce%20opportunit%C3%A9&platform=LinkedIn&audience=Alumni&body=R%C3%A9diger%20une%20annonce%20courte%20pour%20la%20communaut%C3%A9%20alumni%20de%20la%20Fonderie.">
-                <Button variant="light" size="sm" icon={<Icon name="sparkle" size={12} />}>
-                  Générer une annonce
-                </Button>
+              <Link
+                href="/generator?title=Annonce%20opportunit%C3%A9&platform=LinkedIn&audience=Alumni&body=R%C3%A9diger%20une%20annonce%20courte%20pour%20la%20communaut%C3%A9%20alumni%20de%20la%20Fonderie."
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-ink/10 bg-white px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+              >
+                <Icon name="sparkle" size={12} />
+                <span>Générer une annonce</span>
               </Link>
               <Button
                 variant="light"

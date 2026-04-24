@@ -5,16 +5,17 @@ export const runtime = "nodejs";
 
 type GeneratorRequestBody = Partial<ContentGenerationInput>;
 
+const requiredTextFields = ["audience", "goal", "tone", "angle"] as const;
+
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as GeneratorRequestBody;
 
     if (
       !body.contentType ||
-      !body.audience?.trim() ||
-      !body.goal?.trim() ||
-      !body.tone?.trim() ||
-      !body.angle?.trim()
+      requiredTextFields.some(
+        (field) => typeof body[field] !== "string" || !body[field].trim(),
+      )
     ) {
       return NextResponse.json(
         { error: "Tous les champs sont requis pour générer un contenu." },
