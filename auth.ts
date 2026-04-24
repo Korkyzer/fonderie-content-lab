@@ -4,8 +4,14 @@ import Credentials from "next-auth/providers/credentials";
 import { verifyPassword } from "@/lib/auth/password";
 import { getUserByEmail } from "@/lib/auth/users";
 
+const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+
+if (!authSecret) {
+  throw new Error("AUTH_SECRET is required");
+}
+
 export const { handlers, auth } = NextAuth({
-  secret: process.env.AUTH_SECRET ?? "fonderie-content-lab-local-secret",
+  secret: authSecret,
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   providers: [
