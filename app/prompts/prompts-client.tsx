@@ -133,7 +133,8 @@ export function PromptsLibrary({ prompts }: Props) {
   }
 
   function openInGenerator(prompt: Prompt) {
-    const params = new URLSearchParams({ prompt: prompt.slug });
+    const promptReference = prompt.slug?.trim() || String(prompt.id);
+    const params = new URLSearchParams({ prompt: promptReference });
     router.push(`/generator?${params.toString()}`);
   }
 
