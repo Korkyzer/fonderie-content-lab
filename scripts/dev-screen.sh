@@ -7,6 +7,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOG_DIR="$ROOT_DIR/.next/dev"
 LOG_FILE="$LOG_DIR/screen.log"
 PID_FILE="$LOG_DIR/screen.pid"
+PID_START_FILE="$LOG_DIR/screen.pid.start"
 
 screen_running() {
   local sessions
@@ -25,13 +26,76 @@ pid_running() {
   local pid
 
   pid="$(read_pid)"
-  [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null
+  [[ -n "$pid" ]] && pid_is_dev_server "$pid"
 }
 
 cleanup_pid_file() {
-  if [[ -f "$PID_FILE" ]] && ! pid_running; then
-    rm -f "$PID_FILE"
+  local pid
+
+  pid="$(read_pid)"
+  if [[ -f "$PID_FILE" ]] && { [[ -z "$pid" ]] || ! pid_alive "$pid"; }; then
+    rm -f "$PID_FILE" "$PID_START_FILE"
   fi
+}
+
+pid_alive() {
+  local pid="$1"
+
+  [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null
+}
+
+pid_command() {
+  local pid="$1"
+
+  if [[ -r "/proc/$pid/cmdline" ]]; then
+    tr '\0' ' ' <"/proc/$pid/cmdline" || true
+    return
+  fi
+
+  ps -o command= -p "$pid" 2>/dev/null || true
+}
+
+pid_start_time() {
+  local pid="$1"
+
+  ps -o lstart= -p "$pid" 2>/dev/null | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' || true
+}
+
+write_pid_start_time() {
+  local pid="$1"
+  local start_time
+
+  start_time="$(pid_start_time "$pid")"
+  if [[ -n "$start_time" ]]; then
+    printf '%s\n' "$start_time" >"$PID_START_FILE"
+  fi
+}
+
+pid_has_expected_command() {
+  local pid="$1"
+  local command
+
+  command="$(pid_command "$pid")"
+  [[ "$command" == *"npm"*run\ dev* || "$command" == *"next dev"* ]]
+}
+
+pid_has_expected_start_time() {
+  local pid="$1"
+  local current_start_time
+  local saved_start_time
+
+  [[ -f "$PID_START_FILE" ]] || return 1
+
+  current_start_time="$(pid_start_time "$pid")"
+  saved_start_time="$(tr -d '\r\n' <"$PID_START_FILE")"
+
+  [[ -n "$current_start_time" ]] && [[ "$current_start_time" == "$saved_start_time" ]]
+}
+
+pid_is_dev_server() {
+  local pid="$1"
+
+  pid_alive "$pid" && pid_has_expected_command "$pid" && pid_has_expected_start_time "$pid"
 }
 
 require_screen() {
@@ -42,6 +106,7 @@ require_screen() {
 }
 
 start() {
+  local dev_pid
   local port_pid
 
   require_screen
@@ -60,15 +125,27 @@ start() {
     exit 1
   fi
 
-  rm -f "$LOG_FILE" "$PID_FILE"
+  rm -f "$LOG_FILE" "$PID_FILE" "$PID_START_FILE"
   screen -dmS "$SESSION_NAME" bash -lc "cd \"$ROOT_DIR\" && npm run dev > \"$LOG_FILE\" 2>&1 & echo \$! > \"$PID_FILE\"; wait \$!"
   sleep 2
 
-  if ! pid_running; then
+  dev_pid="$(read_pid)"
+  if [[ -z "$dev_pid" ]] || ! pid_alive "$dev_pid"; then
     echo "Failed to start the persistent dev server."
     if [[ -f "$LOG_FILE" ]]; then
       tail -20 "$LOG_FILE"
     fi
+    exit 1
+  fi
+
+  write_pid_start_time "$dev_pid"
+
+  if ! pid_running; then
+    echo "Failed to validate the persistent dev server process."
+    if [[ -f "$LOG_FILE" ]]; then
+      tail -20 "$LOG_FILE"
+    fi
+    rm -f "$PID_FILE" "$PID_START_FILE"
     exit 1
   fi
 
@@ -89,15 +166,19 @@ stop() {
     exit 0
   fi
 
-  if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
-    kill "$pid" 2>/dev/null || true
-    sleep 1
-    if kill -0 "$pid" 2>/dev/null; then
-      kill -9 "$pid" 2>/dev/null || true
+  if [[ -n "$pid" ]] && pid_alive "$pid"; then
+    if pid_is_dev_server "$pid"; then
+      kill "$pid" 2>/dev/null || true
+      sleep 1
+      if kill -0 "$pid" 2>/dev/null; then
+        kill -9 "$pid" 2>/dev/null || true
+      fi
+    else
+      echo "PID $pid is not the dev server, skipping"
     fi
   fi
 
-  rm -f "$PID_FILE"
+  rm -f "$PID_FILE" "$PID_START_FILE"
 
   if screen_running; then
     screen -S "$SESSION_NAME" -X quit || true
