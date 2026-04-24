@@ -8,7 +8,11 @@ import {
   type StoredNewsletterDraft,
 } from "@/lib/newsletter";
 
-const DB_PATH = join(process.cwd(), "db", "fonderie.db");
+const DEFAULT_DB_DIR =
+  process.env.NODE_ENV === "production"
+    ? join("/tmp", "fonderie-content-lab")
+    : join(process.cwd(), "db");
+const DB_PATH = process.env.NEWSLETTER_DB_PATH ?? join(DEFAULT_DB_DIR, "fonderie.db");
 
 let database: DatabaseSync | null = null;
 
