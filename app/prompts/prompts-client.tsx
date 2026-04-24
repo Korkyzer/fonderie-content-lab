@@ -143,6 +143,13 @@ export function PromptsLibrary({ prompts }: Props) {
     router.push(`/generator?${params.toString()}`);
   }
 
+  function openInGeneratorFromGrid(prompt: Prompt) {
+    const params = new URLSearchParams({
+      prompt: prompt.slug,
+    });
+    router.push(`/generator?${params.toString()}`);
+  }
+
   return (
     <div className="space-y-6">
       <SectionHeading
@@ -285,7 +292,7 @@ export function PromptsLibrary({ prompts }: Props) {
                   copied={copiedId === prompt.id}
                   onOpen={() => setOpenId(prompt.id)}
                   onCopy={() => copyPrompt(prompt)}
-                  onUse={() => openInGenerator(prompt)}
+                  onUse={() => openInGeneratorFromGrid(prompt)}
                   onToggleFavorite={() => toggleFavorite(prompt.id)}
                 />
               ))}
