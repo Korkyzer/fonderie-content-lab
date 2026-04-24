@@ -87,16 +87,16 @@ export const FEED_FILTERS: FeedFilter[] = [
 
 const DEFAULT_COMPETITOR_VISUAL = { short: "??", color: "bg-sky" };
 
-export const COMPETITOR_VISUALS: Record<
+export const COMPETITOR_VISUALS = new Map<
   CompetitorHandle,
   { short: string; color: string }
-> = {
-  "@gobelins_paris": { short: "GB", color: "bg-purple" },
-  "@lisaa_paris": { short: "LS", color: "bg-orange" },
-  "@ecv_france": { short: "EC", color: "bg-green" },
-  "@cifacom": { short: "CF", color: "bg-pink" },
-};
+>([
+  ["@gobelins_paris", { short: "GB", color: "bg-purple" }],
+  ["@lisaa_paris", { short: "LS", color: "bg-orange" }],
+  ["@ecv_france", { short: "EC", color: "bg-green" }],
+  ["@cifacom", { short: "CF", color: "bg-pink" }],
+]);
 
 export function getCompetitorVisual(handle: string) {
-  return COMPETITOR_VISUALS[handle as CompetitorHandle] ?? DEFAULT_COMPETITOR_VISUAL;
+  return COMPETITOR_VISUALS.get(handle as CompetitorHandle) ?? DEFAULT_COMPETITOR_VISUAL;
 }
