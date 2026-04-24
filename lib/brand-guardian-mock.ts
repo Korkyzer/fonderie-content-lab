@@ -10,6 +10,7 @@ export type GuardianCheckState = "ok" | "warn" | "err";
 
 export type BrandTone =
   | "ink"
+  | "cream"
   | "purple"
   | "sky"
   | "red"
@@ -58,7 +59,7 @@ export type BrandAnalysisResponse = {
   score: number;
   verdict: string;
   verdictSub: string;
-  tags: Array<{ label: string; tone: Exclude<BrandTone, "warning"> }>;
+  tags: Array<{ label: string; tone: Exclude<BrandTone, "cream" | "warning"> }>;
   checks: GuardianCheck[];
   slides: GuardianSlide[];
   suggestion: GuardianSuggestion;
@@ -83,8 +84,9 @@ export function createBrandAnalysisResponse(
 ): BrandAnalysisResponse {
   const request = normalizeAnalysisRequest(input);
   const containsOffBrandYellow = /ffd914/i.test(request.content);
-  const projectedScore = containsOffBrandYellow ? 91 : 95;
   const score = containsOffBrandYellow ? 85 : 89;
+  const gain = containsOffBrandYellow ? 6 : 0;
+  const projectedScore = score + gain;
 
   return {
     score,
@@ -141,7 +143,7 @@ export function createBrandAnalysisResponse(
     ],
     slides: [
       { step: "01 · Cover", title: "Motion design à la Fonderie", background: "var(--purple)", tone: "purple" },
-      { step: "02 · Intro", title: "4 formations. 24 frames/sec.", background: "var(--cream)", tone: "ink" },
+      { step: "02 · Intro", title: "4 formations. 24 frames/sec.", background: "var(--cream)", tone: "cream" },
       {
         step: "03 · BTS",
         title: "BTS Design Graphique option Motion",
@@ -156,7 +158,7 @@ export function createBrandAnalysisResponse(
       slide: "Slide 3",
       wrongValue: "#FFD914",
       correctValue: "#FFED00",
-      gain: containsOffBrandYellow ? 6 : 0,
+      gain,
       projectedScore,
       description:
         "Remplacer le jaune off-brand par le jaune officiel CFI. Gain estimé sur la charte graphique.",
