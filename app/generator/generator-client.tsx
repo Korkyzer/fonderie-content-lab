@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import type { BadgeTone } from "@/components/ui/badge";
@@ -79,7 +79,12 @@ export function GeneratorClient({
   const [duration, setDuration] = useState<DurationOption>("30s");
   const [variantId, setVariantId] = useState<GeneratorVariant["id"]>("A");
   const [generation, setGeneration] = useState<GenerateResponse>(initial);
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
+  const [streamingText, setStreamingText] = useState("");
+  const [tokenUsage, setTokenUsage] = useState<number | null>(null);
+  const [streamSource, setStreamSource] = useState<"requesty" | "mock" | null>(null);
+  const [streamError, setStreamError] = useState<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   const variant = useMemo(
     () =>
@@ -92,11 +97,24 @@ export function GeneratorClient({
   const chars = brief.length;
   const words = wordCount(brief);
 
-  const regenerate = () => {
-    startTransition(async () => {
+  const regenerate = async () => {
+    if (isPending) return;
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setIsPending(true);
+    setStreamingText("");
+    setTokenUsage(null);
+    setStreamSource(null);
+    setStreamError(null);
+
+    try {
       const res = await fetch("/api/generate", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: {
+          "content-type": "application/json",
+          accept: "text/event-stream",
+        },
         body: JSON.stringify({
           brief,
           persona,
@@ -106,12 +124,76 @@ export function GeneratorClient({
           formation,
           duration,
         }),
+        signal: controller.signal,
       });
-      if (!res.ok) return;
-      const data = (await res.json()) as GenerateResponse;
-      setGeneration(data);
-    });
+      if (!res.ok || !res.body) {
+        setStreamError(`HTTP ${res.status}`);
+        return;
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        let boundary: number;
+        while ((boundary = buffer.indexOf("\n\n")) !== -1) {
+          const rawEvent = buffer.slice(0, boundary);
+          buffer = buffer.slice(boundary + 2);
+          handleSSEEvent(rawEvent);
+        }
+      }
+    } catch (error) {
+      if ((error as Error).name === "AbortError") return;
+      setStreamError(error instanceof Error ? error.message : "stream failed");
+    } finally {
+      setIsPending(false);
+      abortRef.current = null;
+    }
   };
+
+  const handleSSEEvent = (raw: string) => {
+    let eventName = "message";
+    let dataLine = "";
+    for (const line of raw.split("\n")) {
+      if (line.startsWith("event:")) eventName = line.slice(6).trim();
+      else if (line.startsWith("data:")) dataLine += line.slice(5).trim();
+    }
+    if (!dataLine) return;
+
+    let payload: unknown;
+    try {
+      payload = JSON.parse(dataLine);
+    } catch {
+      return;
+    }
+
+    if (eventName === "delta") {
+      const text = (payload as { text?: string }).text ?? "";
+      setStreamingText((prev) => prev + text);
+    } else if (eventName === "usage") {
+      const total = (payload as { total_tokens?: number }).total_tokens;
+      if (typeof total === "number") setTokenUsage(total);
+    } else if (eventName === "mock") {
+      setStreamSource("mock");
+    } else if (eventName === "start") {
+      setStreamSource("requesty");
+    } else if (eventName === "error") {
+      const message = (payload as { message?: string }).message;
+      if (message) setStreamError(message);
+    } else if (eventName === "done") {
+      const result = (payload as { result?: GenerateResponse; tokens?: number }).result;
+      const tokens = (payload as { tokens?: number }).tokens;
+      if (result) setGeneration(result);
+      if (typeof tokens === "number") setTokenUsage(tokens);
+    }
+  };
+
+  const estimatedCostEUR = tokenUsage ? (tokenUsage / 1000) * 0.012 : null;
 
   return (
     <div className="grid gap-4 xl:grid-cols-[0.9fr_1.6fr_0.85fr]">
@@ -261,6 +343,38 @@ export function GeneratorClient({
               <BackstageRow key={step.label} step={step} />
             ))}
           </ul>
+
+          {(isPending || streamingText) && (
+            <div className="mt-4 rounded-md border border-cream/15 bg-cream/5 p-3">
+              <div className="mb-2 flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.12em] text-cream/55">
+                <span className="flex items-center gap-2">
+                  <span
+                    className={cx(
+                      "inline-block h-1.5 w-1.5 rounded-full",
+                      isPending ? "animate-pulse bg-purple" : "bg-green",
+                    )}
+                  />
+                  {isPending ? "Streaming en cours" : "Streaming terminé"}
+                  {streamSource === "mock" ? " · mode mock" : ""}
+                </span>
+                {tokenUsage ? (
+                  <span>
+                    {tokenUsage} tokens
+                    {estimatedCostEUR ? ` · ≈ ${estimatedCostEUR.toFixed(4)} €` : ""}
+                  </span>
+                ) : null}
+              </div>
+              <pre className="max-h-48 overflow-auto whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed text-cream/85">
+                {streamingText || "…"}
+              </pre>
+            </div>
+          )}
+
+          {streamError ? (
+            <p className="mt-3 rounded-sm bg-red-500/15 px-3 py-2 text-[11px] text-red-200">
+              Génération interrompue : {streamError} · contenu mock affiché.
+            </p>
+          ) : null}
         </Card>
 
         <Card>

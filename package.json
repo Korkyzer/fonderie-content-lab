@@ -10,6 +10,7 @@
     "dev:persist:status": "./scripts/dev-screen.sh status",
     "build": "next build",
     "start": "next start",
+    "test": "node --import tsx --test",
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx db/migrate.ts",
