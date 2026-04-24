@@ -58,7 +58,20 @@ function matchesFilter(filter: FeedFilter, post: CompetitivePost) {
 export function CompetitiveView({ competitors }: CompetitiveViewProps) {
   const [filter, setFilter] = useState<FeedFilter>("Tous");
 
-  const visibleCompetitors = competitors.slice(0, 4);
+  const visibleCompetitors = useMemo(() => competitors.slice(0, 4), [competitors]);
+  const competitorFeedEntries = useMemo(
+    () =>
+      new Map(
+        visibleCompetitors.map((competitor, index) => [
+          competitor.handle,
+          {
+            competitor,
+            visual: COMPETITOR_VISUALS[index % COMPETITOR_VISUALS.length],
+          },
+        ]),
+      ),
+    [visibleCompetitors],
+  );
   const totalPosts = visibleCompetitors.reduce(
     (sum, comp) => sum + comp.monthlyPosts,
     0,
@@ -178,11 +191,9 @@ export function CompetitiveView({ competitors }: CompetitiveViewProps) {
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filteredPosts.map((post) => {
-              const competitor = visibleCompetitors[post.competitorIndex];
-              const visual =
-                COMPETITOR_VISUALS[
-                  post.competitorIndex % COMPETITOR_VISUALS.length
-                ];
+              const feedEntry = competitorFeedEntries.get(post.competitorId);
+              const competitor = feedEntry?.competitor;
+              const visual = feedEntry?.visual ?? COMPETITOR_VISUALS[0];
               const placeholderTone = post.tone as PlaceholderTone;
               const aspectClass =
                 post.aspectRatio === "4/5"
