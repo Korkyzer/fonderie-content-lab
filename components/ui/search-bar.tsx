@@ -11,7 +11,10 @@ type SearchBarProps = InputHTMLAttributes<HTMLInputElement> & {
 };
 
 export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
-  function SearchBar({ shortcut = "⌘K", className, ...rest }, ref) {
+  function SearchBar(
+    { shortcut = "⌘K", className, "aria-label": ariaLabel, ...rest },
+    ref,
+  ) {
     return (
       <label
         className={cx(
@@ -25,6 +28,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
         <input
           ref={ref}
           type="search"
+          aria-label={ariaLabel ?? "Rechercher"}
           placeholder="Rechercher contenu, brief, persona…"
           className="flex-1 bg-transparent outline-none placeholder:text-ink/50"
           {...rest}

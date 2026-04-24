@@ -1,125 +1,39 @@
-import type { BrandAnalysisResponse } from "@/app/api/brand-analysis/route";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { db } from "@/db/index";
 import { brandRules as brandRulesTable } from "@/db/schema";
+import {
+  createBrandAnalysisResponse,
+  type BrandAnalysisResponse,
+} from "@/lib/brand-guardian-mock";
+import { fallbackBrandRules } from "@/lib/fallback-data";
 
 import { GuardianClient } from "./guardian-client";
 
-const SEED_ANALYSIS: BrandAnalysisResponse = {
-  score: 89,
-  verdict: "Presque prêt",
-  verdictSub:
-    "2 points d'attention avant publication. L'identité CFI est globalement respectée mais la palette s'écarte du jaune officiel sur 2 slides.",
-  tags: [
-    { label: "Motion Design", tone: "purple" },
-    { label: "Instagram · Carrousel", tone: "sky" },
-  ],
-  checks: [
-    {
-      id: "edu",
-      label: "Conformité éducation",
-      msg: "Mentions Qualiopi + financements présentes · bloc RNCP correct",
-      score: 24,
-      max: 25,
-      state: "ok",
-    },
-    {
-      id: "tone",
-      label: "Tone of voice",
-      msg: "Direct · tutoiement · zéro jargon corporate — bien aligné persona Lycéens",
-      score: 19,
-      max: 20,
-      state: "ok",
-    },
-    {
-      id: "graphic",
-      label: "Charte graphique",
-      msg: "Slide 3 utilise un jaune #FFD914 au lieu du jaune officiel CFI #FFED00. Police bold respectée.",
-      score: 13,
-      max: 20,
-      state: "warn",
-    },
-    {
-      id: "a11y",
-      label: "Accessibilité",
-      msg: "Contraste AA+, sous-titres présents, alt text renseigné",
-      score: 19,
-      max: 20,
-      state: "ok",
-    },
-    {
-      id: "lex",
-      label: "Vocabulaire",
-      msg: "Usage correct de « étudiant·es », « DCDG », « atelier ». 0 occurrence interdite.",
-      score: 14,
-      max: 15,
-      state: "ok",
-    },
-  ],
-  slides: [
-    { step: "01 · Cover", title: "Motion design à la Fonderie", background: "var(--purple)", tone: "purple" },
-    { step: "02 · Intro", title: "4 formations. 24 frames/sec.", background: "var(--cream)", tone: "cream" },
-    {
-      step: "03 · BTS",
-      title: "BTS Design Graphique option Motion",
-      background: "#FFD914",
-      tone: "warning",
-      warning: "Jaune off-brand",
-    },
-    { step: "04 · Mastère", title: "Mastère DCDG — Direction créative", background: "var(--ink)", tone: "ink" },
-    { step: "05 · CTA", title: "JPO 17 mai — Viens voir", background: "var(--sky)", tone: "sky" },
-  ],
-  suggestion: {
-    slide: "Slide 3",
-    wrongValue: "#FFD914",
-    correctValue: "#FFED00",
-    gain: 6,
-    projectedScore: 95,
-    description:
-      "Remplacer le jaune off-brand par le jaune officiel CFI. Gain estimé sur la charte graphique.",
-  },
-  history: [
-    {
-      id: "bg-auto",
-      author: "Brand Guardian · analyse automatique",
-      initials: "BG",
-      avatarTone: "purple",
-      title: "Analyse automatique",
-      note: "Score 89/100 — 2 points d'attention",
-      time: "il y a 3 min",
-    },
-    {
-      id: "thomas",
-      author: "Thomas L.",
-      initials: "TL",
-      avatarTone: "sky",
-      title: "Demande de validation",
-      note: "« Brief pour poster demain matin, la cover est validée côté direction »",
-      time: "il y a 12 min",
-    },
-  ],
-  meta: {
-    author: "Thomas L.",
-    format: "Carrousel · 5 slides",
-    analyzedAt: new Date(0).toISOString(),
-  },
-};
-
 export default function BrandGuardianPage() {
-  const brandRuleRows = db
-    .select({
-      id: brandRulesTable.id,
-      category: brandRulesTable.category,
-      name: brandRulesTable.name,
-      description: brandRulesTable.description,
-      severity: brandRulesTable.severity,
-      expectedValue: brandRulesTable.expectedValue,
-    })
-    .from(brandRulesTable)
-    .all();
+  const initialAnalysis: BrandAnalysisResponse = createBrandAnalysisResponse();
+
+  const brandRuleRows = (() => {
+    try {
+      const rows = db
+        .select({
+          id: brandRulesTable.id,
+          category: brandRulesTable.category,
+          name: brandRulesTable.name,
+          description: brandRulesTable.description,
+          severity: brandRulesTable.severity,
+          expectedValue: brandRulesTable.expectedValue,
+        })
+        .from(brandRulesTable)
+        .all();
+
+      return rows.length > 0 ? rows : fallbackBrandRules;
+    } catch {
+      return fallbackBrandRules;
+    }
+  })();
 
   return (
     <div className="flex flex-col gap-6">
@@ -130,9 +44,9 @@ export default function BrandGuardianPage() {
       />
 
       <div className="flex flex-wrap items-center gap-2">
-        <Badge tone="purple">Score {SEED_ANALYSIS.score}/100</Badge>
+        <Badge tone="purple">Score {initialAnalysis.score}/100</Badge>
         <Badge tone="yellow">Jaune off-brand</Badge>
-        <Badge tone="green">Correction +{SEED_ANALYSIS.suggestion.gain} pts</Badge>
+        <Badge tone="green">Correction +{initialAnalysis.suggestion.gain} pts</Badge>
         <span className="mx-2 h-4 w-px bg-ink/15" />
         <Button variant="light" icon={<Icon name="close" size={14} />}>
           Renvoyer
@@ -142,7 +56,7 @@ export default function BrandGuardianPage() {
         </Button>
       </div>
 
-      <GuardianClient initial={SEED_ANALYSIS} brandRules={brandRuleRows} />
+      <GuardianClient initial={initialAnalysis} brandRules={brandRuleRows} />
     </div>
   );
 }

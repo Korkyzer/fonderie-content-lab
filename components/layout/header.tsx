@@ -25,7 +25,7 @@ export function Header({ actions }: HeaderProps) {
           <b className="font-bold">{meta.crumb}</b>
         </div>
         <h1 className="mt-0.5 text-h1 font-display uppercase tracking-[0.01em]">
-          {meta.crumb}
+          {meta.title}
         </h1>
       </div>
       <div className="flex flex-wrap items-center justify-end gap-2.5">
