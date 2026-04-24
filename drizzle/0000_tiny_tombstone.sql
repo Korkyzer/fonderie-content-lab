@@ -1,4 +1,4 @@
-CREATE TABLE `brand_rules` (
+CREATE TABLE IF NOT EXISTS `brand_rules` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`category` text NOT NULL,
 	`name` text NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE `brand_rules` (
 	`status` text NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE `calendar_events` (
+CREATE TABLE IF NOT EXISTS `calendar_events` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`title` text NOT NULL,
 	`event_type` text NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE `calendar_events` (
 	`ai_suggestion` text
 );
 --> statement-breakpoint
-CREATE TABLE `competitors` (
+CREATE TABLE IF NOT EXISTS `competitors` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
 	`handle` text NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE `competitors` (
 	`opportunity` text NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE `content_items` (
+CREATE TABLE IF NOT EXISTS `content_items` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`title` text NOT NULL,
 	`format` text NOT NULL,
@@ -46,7 +46,7 @@ CREATE TABLE `content_items` (
 	`brand_score` integer
 );
 --> statement-breakpoint
-CREATE TABLE `kanban_cards` (
+CREATE TABLE IF NOT EXISTS `kanban_cards` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`column_id` text NOT NULL,
 	`title` text NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE `kanban_cards` (
 	`brand_score` integer
 );
 --> statement-breakpoint
-CREATE TABLE `personas` (
+CREATE TABLE IF NOT EXISTS `personas` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`slug` text NOT NULL,
 	`name` text NOT NULL,
@@ -86,7 +86,7 @@ CREATE TABLE `personas` (
 	`sample_copy` text NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE `prompts` (
+CREATE TABLE IF NOT EXISTS `prompts` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`slug` text NOT NULL,
 	`title` text NOT NULL,

@@ -3,9 +3,8 @@ import { NextResponse } from "next/server";
 import {
   createPrompt,
   listPrompts,
-  slugify,
-  type NewPrompt,
 } from "@/lib/data/prompts";
+import { parsePromptCreatePayload } from "@/app/api/prompts/payload";
 
 export const dynamic = "force-dynamic";
 
@@ -14,45 +13,19 @@ export function GET() {
 }
 
 export async function POST(request: Request) {
-  const payload = (await request.json()) as Partial<NewPrompt>;
-
-  const required = [
-    "title",
-    "description",
-    "category",
-    "audience",
-    "platform",
-    "tone",
-    "body",
-  ] as const;
-  for (const key of required) {
-    if (!payload[key] || typeof payload[key] !== "string") {
-      return NextResponse.json(
-        { error: `Champ manquant ou invalide : ${key}` },
-        { status: 400 },
-      );
-    }
+  let payload: unknown;
+  try {
+    payload = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Payload JSON invalide" }, { status: 400 });
   }
 
-  const now = new Date().toISOString();
-  const prompt = createPrompt({
-    slug: payload.slug?.trim() || slugify(payload.title as string),
-    title: payload.title as string,
-    description: payload.description as string,
-    category: payload.category as string,
-    audience: payload.audience as string,
-    platform: payload.platform as string,
-    tone: (payload.tone as string) ?? "purple",
-    rating: typeof payload.rating === "number" ? payload.rating : 4.5,
-    monthlyUsage:
-      typeof payload.monthlyUsage === "number" ? payload.monthlyUsage : 0,
-    variables: (payload.variables as string) ?? "",
-    body: payload.body as string,
-    author: (payload.author as string) ?? "Équipe Fonderie",
-    favorite: Boolean(payload.favorite),
-    createdAt: now,
-    updatedAt: now,
-  });
+  const result = parsePromptCreatePayload(payload, new Date().toISOString());
+  if ("error" in result) {
+    return NextResponse.json({ error: result.error }, { status: 400 });
+  }
+
+  const prompt = createPrompt(result.data);
 
   return NextResponse.json({ prompt }, { status: 201 });
 }

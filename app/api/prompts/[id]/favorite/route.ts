@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { toggleFavorite } from "@/lib/data/prompts";
+import { parsePromptId } from "@/app/api/prompts/payload";
 
 export const dynamic = "force-dynamic";
 
@@ -9,8 +10,8 @@ export async function POST(
   context: { params: Promise<{ id: string }> },
 ) {
   const { id: raw } = await context.params;
-  const id = Number.parseInt(raw, 10);
-  if (!Number.isFinite(id))
+  const id = parsePromptId(raw);
+  if (id === null)
     return NextResponse.json({ error: "id invalide" }, { status: 400 });
   const prompt = toggleFavorite(id);
   if (!prompt)
