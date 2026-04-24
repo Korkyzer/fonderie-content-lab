@@ -77,7 +77,7 @@ export type BrandAnalysisResponse = {
   summary?: string;
 };
 
-const DEFAULT_DRAFT =
+export const DEFAULT_DRAFT =
   "Viens créer ton futur à la Fonderie · JPO 17 mai, campus Bagnolet. Motion design, sérigraphie, DA.";
 
 const DEFAULT_FORMAT = "Instagram · Carrousel";

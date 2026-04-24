@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import {
+  DEFAULT_DRAFT,
   createBrandAnalysisResponse,
   type BrandAnalysisRequest,
   type BrandAnalysisResponse,
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const content = body.content?.trim() || mock.meta.format;
+    const content = body.content?.trim() || DEFAULT_DRAFT;
     const format = body.format?.trim() || mock.meta.format;
     const messages = buildBrandAnalysisMessages(content, format);
     const { text } = await requestyComplete(messages, {
