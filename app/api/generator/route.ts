@@ -1,22 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateContent, type ContentGenerationInput } from "@/lib/content-generator";
+import {
+  CONTENT_TYPES,
+  generateContent,
+  type ContentType,
+} from "@/lib/content-generator";
 
 export const runtime = "nodejs";
 
-type GeneratorRequestBody = Partial<ContentGenerationInput>;
-
-const requiredTextFields = ["audience", "goal", "tone", "angle"] as const;
+type GeneratorRequestBody = {
+  contentType?: unknown;
+  audience?: unknown;
+  goal?: unknown;
+  tone?: unknown;
+  angle?: unknown;
+};
 
 export async function POST(request: NextRequest) {
-  try {
-    const body = (await request.json()) as GeneratorRequestBody;
+  let body: GeneratorRequestBody;
 
-    if (
-      !body.contentType ||
-      requiredTextFields.some(
-        (field) => typeof body[field] !== "string" || !body[field].trim(),
-      )
-    ) {
+  try {
+    const payload: unknown = await request.json();
+    body = isRequestBody(payload) ? payload : {};
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  try {
+    if (!isContentType(body.contentType)) {
+      return NextResponse.json(
+        {
+          error: `Invalid contentType. Must be one of: ${CONTENT_TYPES.join(", ")}`,
+        },
+        { status: 400 },
+      );
+    }
+
+    const audience = readRequiredText(body.audience);
+    const goal = readRequiredText(body.goal);
+    const tone = readRequiredText(body.tone);
+    const angle = readRequiredText(body.angle);
+
+    if (!audience || !goal || !tone || !angle) {
       return NextResponse.json(
         { error: "Tous les champs sont requis pour générer un contenu." },
         { status: 400 },
@@ -25,10 +49,10 @@ export async function POST(request: NextRequest) {
 
     const generated = await generateContent({
       contentType: body.contentType,
-      audience: body.audience,
-      goal: body.goal,
-      tone: body.tone,
-      angle: body.angle,
+      audience,
+      goal,
+      tone,
+      angle,
     });
 
     return NextResponse.json({ generated });
@@ -43,4 +67,19 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
+}
+
+function isRequestBody(value: unknown): value is GeneratorRequestBody {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function isContentType(value: unknown): value is ContentType {
+  return (
+    typeof value === "string" &&
+    (CONTENT_TYPES as readonly string[]).includes(value)
+  );
+}
+
+function readRequiredText(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value : null;
 }
