@@ -18,6 +18,19 @@ export function getPromptById(id: number): Prompt | undefined {
   return db.select().from(prompts).where(eq(prompts.id, id)).get();
 }
 
+export function getPromptBySlugOrId(value: string): Prompt | undefined {
+  const reference = value.trim();
+  if (!reference) return undefined;
+
+  const bySlug = getPromptBySlug(reference);
+  if (bySlug) return bySlug;
+
+  const id = Number.parseInt(reference, 10);
+  if (!Number.isSafeInteger(id) || String(id) !== reference) return undefined;
+
+  return getPromptById(id);
+}
+
 export function createPrompt(input: NewPrompt): Prompt {
   const [row] = db.insert(prompts).values(input).returning().all();
   return row;

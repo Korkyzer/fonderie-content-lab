@@ -1,7 +1,7 @@
 import { ScreenFrame } from "@/components/screens/screen-frame";
 import { Panel } from "@/components/ui/panel";
 import { Tag } from "@/components/ui/tag";
-import { getPromptBySlug } from "@/lib/data/prompts";
+import { getPromptBySlugOrId } from "@/lib/data/prompts";
 
 type GeneratorPageProps = {
   searchParams: Promise<{
@@ -17,7 +17,7 @@ export default async function GeneratorPage({
   searchParams,
 }: GeneratorPageProps) {
   const params = await searchParams;
-  const selectedPrompt = params.prompt ? getPromptBySlug(params.prompt) : undefined;
+  const selectedPrompt = params.prompt ? getPromptBySlugOrId(params.prompt) : undefined;
   const promptTitle = selectedPrompt?.title ?? params.title;
   const promptBody = selectedPrompt?.body ?? params.body;
   const promptPlatform = selectedPrompt?.platform ?? params.platform;

@@ -27,7 +27,26 @@ export type Persona = Omit<
 };
 
 function splitList(value: string): string[] {
-  return value
+  const trimmed = value.trim();
+  if (trimmed.length === 0) {
+    return [];
+  }
+
+  if (trimmed.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        return parsed
+          .filter((item): item is string => typeof item === "string")
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+    } catch {
+      // Garde la compatibilité avec les anciennes seeds CSV.
+    }
+  }
+
+  return trimmed
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
