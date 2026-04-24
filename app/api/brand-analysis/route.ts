@@ -37,6 +37,7 @@ export async function POST(request: Request) {
       temperature: 0.2,
       maxTokens: 900,
       responseFormat: "json_object",
+      signal: request.signal,
     });
     const parsed = parseBrandAnalysisJSON(text);
     if (!parsed) {
