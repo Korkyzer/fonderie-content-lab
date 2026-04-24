@@ -74,6 +74,14 @@ function getMondayIndex(date: Date) {
   return (getDay(date) + 6) % 7;
 }
 
+function isSameCalendarDay(left: Date, right: Date) {
+  return (
+    left.getFullYear() === right.getFullYear() &&
+    left.getMonth() === right.getMonth() &&
+    left.getDate() === right.getDate()
+  );
+}
+
 export function CalendarView({
   campaignEvents,
   scheduledCount,
@@ -82,6 +90,7 @@ export function CalendarView({
     () => new Date(MONTH_YEAR, MONTH_INDEX, 1),
     [],
   );
+  const today = useMemo(() => new Date(), []);
   const [cursor, setCursor] = useState<Date>(baseDate);
   const [channel, setChannel] = useState<CalendarChannel | "Toutes">("Toutes");
   const [selectedEntry, setSelectedEntry] = useState<CalendarEntry | null>(null);
@@ -225,8 +234,7 @@ export function CalendarView({
               const isPad = cell.type === "pad";
               const isJpo =
                 !isPad && isReferenceMonth && cell.num === 17;
-              const isToday =
-                !isPad && isReferenceMonth && cell.num === 7;
+              const isToday = !isPad && isSameCalendarDay(cell.date, today);
               const aiText = !isPad ? aiByDay.get(cell.num) : undefined;
               const entries = !isPad ? entriesByDay.get(cell.num) ?? [] : [];
 
