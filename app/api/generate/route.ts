@@ -12,6 +12,7 @@ import {
   buildGeneratorMessages,
   parseVariantsJSON,
 } from "@/lib/generator-prompt";
+import { requirePermission } from "@/lib/auth/session";
 import { hasRequestyKey, requestyStream, RequestyError } from "@/lib/requesty";
 
 export const runtime = "nodejs";
@@ -94,6 +95,9 @@ function buildResponseFromLLM(
 }
 
 export async function POST(req: Request) {
+  const access = await requirePermission("generator.use");
+  if (access.error) return access.error;
+
   const body = (await req.json().catch(() => ({}))) as Partial<GenerateRequest>;
   const request = normalizeGenerateRequest(body);
   const wantsStream = req.headers.get("accept")?.includes("text/event-stream");

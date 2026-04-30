@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/db/index";
 import { kanbanCards } from "@/db/schema";
+import { requirePermission } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,9 @@ const VALID_COLUMN_IDS = new Set([
 ]);
 
 export async function PATCH(request: Request, { params }: Params) {
+  const access = await requirePermission("content.write");
+  if (access.error) return access.error;
+
   const { id } = await params;
   const cardId = Number(id);
   if (!Number.isFinite(cardId)) {
@@ -71,6 +75,9 @@ export async function PATCH(request: Request, { params }: Params) {
 }
 
 export async function DELETE(_request: Request, { params }: Params) {
+  const access = await requirePermission("content.write");
+  if (access.error) return access.error;
+
   const { id } = await params;
   const cardId = Number(id);
   if (!Number.isFinite(cardId)) {

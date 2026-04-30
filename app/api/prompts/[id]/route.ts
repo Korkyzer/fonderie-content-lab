@@ -10,6 +10,7 @@ import {
   parsePromptId,
   parsePromptPatchPayload,
 } from "@/app/api/prompts/payload";
+import { requirePermission } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +40,9 @@ export async function PATCH(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
+  const access = await requirePermission("content.write");
+  if (access.error) return access.error;
+
   const { id: raw } = await context.params;
   const id = parsePromptId(raw);
   if (id === null) return NextResponse.json({ error: "id invalide" }, { status: 400 });
@@ -89,6 +93,9 @@ export async function DELETE(
   _request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
+  const access = await requirePermission("content.write");
+  if (access.error) return access.error;
+
   const { id: raw } = await context.params;
   const id = parsePromptId(raw);
   if (id === null) return NextResponse.json({ error: "id invalide" }, { status: 400 });
