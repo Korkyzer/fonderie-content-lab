@@ -54,6 +54,15 @@ export type ValidationEvent = {
   time: string;
 };
 
+export type BrandViolation = {
+  rule: string;
+  severity: "error" | "warning" | "info";
+  description: string;
+  suggestion: string;
+};
+
+export type BrandAnalysisSource = "requesty" | "mock";
+
 export type BrandAnalysisResponse = {
   score: number;
   verdict: string;
@@ -63,10 +72,12 @@ export type BrandAnalysisResponse = {
   slides: GuardianSlide[];
   suggestion: GuardianSuggestion;
   history: ValidationEvent[];
-  meta: { author: string; format: string; analyzedAt: string };
+  meta: { author: string; format: string; analyzedAt: string; source?: BrandAnalysisSource };
+  violations?: BrandViolation[];
+  summary?: string;
 };
 
-const DEFAULT_DRAFT =
+export const DEFAULT_DRAFT =
   "Viens créer ton futur à la Fonderie · JPO 17 mai, campus Bagnolet. Motion design, sérigraphie, DA.";
 
 const DEFAULT_FORMAT = "Instagram · Carrousel";
@@ -185,6 +196,20 @@ export function createBrandAnalysisResponse(
       author: "Thomas L.",
       format: request.format,
       analyzedAt: new Date().toISOString(),
+      source: "mock",
     },
+    summary: containsOffBrandYellow
+      ? "Contenu globalement conforme mais un jaune off-brand à corriger sur slide 3."
+      : "Contenu aligné sur l'identité CFI, prêt à publier après relecture.",
+    violations: containsOffBrandYellow
+      ? [
+          {
+            rule: "palette",
+            severity: "warning",
+            description: "Jaune #FFD914 détecté au lieu du jaune officiel CFI #FFED00.",
+            suggestion: "Remplacer le code couleur par #FFED00 sur la slide concernée.",
+          },
+        ]
+      : [],
   };
 }
